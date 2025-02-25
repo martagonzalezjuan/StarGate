@@ -1,0 +1,71 @@
+.app {
+  font-family: sans-serif;
+  color: #fff;
+  background: #000;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.header ul {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+}
+
+/* Sección Hero */
+.hero {
+  position: relative;
+  height: 80vh;  /* Altura fija para el hero */
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;  /* Se ajusta sin deformar la imagen */
+  filter: brightness(0.7); /* Oscurece ligeramente la imagen */
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 0 20px;
+}
+
+/* Botón */
+button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+/* Sección de Videos */
+.videos-section {
+  background: #111;
+  padding: 40px 20px;
+}
+html {
+  scroll-behavior: smooth;
+}
