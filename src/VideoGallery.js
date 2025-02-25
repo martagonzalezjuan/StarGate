@@ -41,6 +41,8 @@ function VideoGallery() {
             setVideos(filteredVideos);
             if (filteredVideos.length > 0) {
               setSelectedVideo(filteredVideos[0]);
+              // Set the initial video URL here
+              setCurrentVideoUrl(filteredVideos[0].videoLinks[0].href);
             }
             setLoading(false);
           });
