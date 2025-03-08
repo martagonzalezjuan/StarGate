@@ -6,13 +6,31 @@ function App() {
   const [apodData, setApodData] = useState(null);
   const API_KEY = 'qvTugfpNj9qF2lpjhjW33mcjZclHYKpfRLLHCZgL';
 
-  // Add refs for each section
+  // Refs para las secciones
   const homeRef = useRef(null);
   const videosRef = useRef(null);
   const galleryRef = useRef(null);
   const aboutRef = useRef(null);
 
-  // Scroll handler function
+  // Definir los videos disponibles en `assets/`
+  const videos = [
+    {
+      id: 1,
+      title: "Exploración Espacial 1",
+      resolutions: ["4k", "1080p", "720p"],
+      subtitles: ["en", "es"],
+      audio: ["en"]
+    },
+    {
+      id: 2,
+      title: "Exploración Espacial 2",
+      resolutions: ["4k"],
+      subtitles: [],
+      audio: []
+    }
+  ];
+
+  // Función para hacer scroll a una sección
   const scrollToSection = (ref) => {
     ref.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -40,7 +58,7 @@ function App() {
         </nav>
       </header>
       
-      {/* Home section with APOD */}
+      {/* Sección Home con APOD */}
       <section ref={homeRef} className="hero">
         <div className="hero-bg">
           <img src={apodData.url} alt={apodData.title} />
@@ -52,18 +70,18 @@ function App() {
         </div>
       </section>
 
-      {/* Videos section */}
+      {/* Sección de Videos */}
       <section ref={videosRef} className="videos-section">
-        <VideoGallery />
+        <VideoGallery videos={videos} />
       </section>
 
-      {/* Gallery section (to be implemented) */}
+      {/* Sección de Galería (por implementar) */}
       <section ref={galleryRef} className="gallery-section">
         <h2>Gallery</h2>
         <p>Coming soon...</p>
       </section>
 
-      {/* About section (to be implemented) */}
+      {/* Sección About (por implementar) */}
       <section ref={aboutRef} className="about-section">
         <h2>About Us</h2>
         <p>Coming soon...</p>
