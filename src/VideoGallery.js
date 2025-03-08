@@ -4,6 +4,8 @@ import './VideoGallery.css';
 function VideoGallery() {
   // En lugar de usar la API, cargamos el video local
   const localVideoUrl = process.env.PUBLIC_URL + "/video_nasa_raw.mp4"; 
+  const subtitlesEnUrl = process.env.PUBLIC_URL + "/sub_hubble_en.vtt"; 
+  const subtitlesEsUrl = process.env.PUBLIC_URL + "/sub_hubble_es.vtt"; 
 
   const [currentVideoUrl, setCurrentVideoUrl] = useState(localVideoUrl);
 
@@ -14,6 +16,20 @@ function VideoGallery() {
         <div className="video-selected">
           <video controls width="100%">
             <source src={currentVideoUrl} type="video/mp4" />
+            <track 
+              label="Inglés" 
+              kind="subtitles" 
+              srcLang="en" 
+              src={subtitlesEnUrl} 
+              default 
+            />
+            
+            <track 
+              label="Español" 
+              kind="subtitles" 
+              srcLang="es" 
+              src={subtitlesEsUrl} 
+            />
             Tu navegador no soporta el elemento video.
           </video>
           <h3>Exploración Espacial</h3>
