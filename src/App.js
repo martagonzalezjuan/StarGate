@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import VideoGallery from './VideoGallery';
+import Logo from './logo.png'; // Asegúrate de que el archivo esté en la ruta correcta
 
 function App() {
   const [apodData, setApodData] = useState(null);
@@ -9,21 +10,19 @@ function App() {
   // Refs para las secciones
   const homeRef = useRef(null);
   const videosRef = useRef(null);
-  const galleryRef = useRef(null);
-  const aboutRef = useRef(null);
 
   // Videos disponibles en `assets/`
   const videos = [
     {
       id: 1,
-      title: "Exploración Espacial 1",
+      title: "Hubble",
       resolutions: ["4k", "1080p", "720p"],
       subtitles: ["en", "es"],
       audio: ["en"]
     },
     {
       id: 2,
-      title: "Exploración Espacial 2",
+      title: "Marte",
       resolutions: ["4k"],
       subtitles: [],
       audio: []
@@ -47,13 +46,14 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>StarGate</h1>
+        <div className="header-logo">
+          <img src={Logo} alt="StarGate Logo" />
+          <h1>StarGate</h1>
+        </div>
         <nav>
           <ul>
             <li onClick={() => scrollToSection(homeRef)}>Home</li>
-            <li onClick={() => scrollToSection(videosRef)}>Explora Videos</li>
-            <li onClick={() => scrollToSection(galleryRef)}>Gallery</li>
-            <li onClick={() => scrollToSection(aboutRef)}>About us</li>
+            <li onClick={() => scrollToSection(videosRef)}>Explore</li>
           </ul>
         </nav>
       </header>
@@ -66,25 +66,13 @@ function App() {
         <div className="hero-content">
           <h2>{apodData.title}</h2>
           <p>{apodData.explanation}</p>
-          <button onClick={() => scrollToSection(videosRef)}>Explora Ahora</button>
+          
         </div>
       </section>
 
       {/* Sección de Videos */}
       <section ref={videosRef} className="videos-section">
         <VideoGallery videos={videos} />
-      </section>
-
-      {/* Sección de Galería (por implementar) */}
-      <section ref={galleryRef} className="gallery-section">
-        <h2>Gallery</h2>
-        <p>Coming soon...</p>
-      </section>
-
-      {/* Sección About (por implementar) */}
-      <section ref={aboutRef} className="about-section">
-        <h2>About Us</h2>
-        <p>Coming soon...</p>
       </section>
     </div>
   );

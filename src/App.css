@@ -4,13 +4,22 @@
   background: #000;
 }
 
-/* Header */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.8);
+  padding: 10px 20px;
+  background-color: #000;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+}
+
+.header-logo img {
+  height: 40px; /* Ajusta según tu diseño */
+  margin-right: 10px;
 }
 
 .header ul {

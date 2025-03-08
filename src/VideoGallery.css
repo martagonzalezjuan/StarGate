@@ -7,29 +7,46 @@
   align-items: center;
 }
 
+/* Centra el bloque del video en la página */
 .video-display {
+  display: flex;
+  justify-content: center; /* centra horizontalmente */
   margin-bottom: 20px;
-  width: 80%;
+  width: 100%;            /* ocupa todo el ancho disponible del contenedor */
 }
 
+/* Contenedor que envuelve el video + título */
 .video-selected {
+  display: inline-block;  /* se ajusta al contenido (el video) */
   background: #000;
-  padding: 20px;
   border-radius: 8px;
-  width: 100%;
+  margin: 0 auto;         /* centrado adicional si fuera necesario */
+  padding: 0;
+  text-align: left;       /* título alineado a la izquierda */
 }
 
+/* El video mantiene su proporción y no se deforma */
 .video-selected video {
-  width: 100%;
-  border-radius: 8px;
+  display: block; 
+  max-width: 100%;  /* se adapta si la pantalla es más pequeña que el video */
+  height: auto;     /* mantiene la relación de aspecto */
 }
 
+/* Título con más espacio vertical */
+.video-selected h3 {
+  margin: 20px;     /* ajusta el espacio que quieras */
+  box-sizing: border-box;
+  text-align: left;
+}
+
+/* Carrusel de miniaturas */
 .video-slider {
   display: flex;
   overflow-x: auto;
   gap: 10px;
   padding-bottom: 10px;
-  width: 80%;
+  width: 80%;        /* o 100%, según tu preferencia */
+  margin: 0 auto;
 }
 
 .slider-item {

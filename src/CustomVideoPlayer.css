@@ -1,0 +1,180 @@
+/* Contenedor del reproductor */
+.video-container {
+    position: relative;
+    width: 800px; /* Ajusta el tamaño que desees */
+    margin: 0 auto;
+    background: black;
+  }
+  
+  .video-player {
+    width: 100%;
+    display: block;
+    background-color: black;
+  }
+  
+  /* Barra de controles */
+  .controls-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(15, 15, 15, 0.9);
+    color: #fff;
+    font-size: 14px;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Ocultar la barra cuando showControls = false */
+  .controls-bar.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  /* Progreso y buffer */
+  .progress-container {
+    position: relative;
+    height: 6px;
+    background-color: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+  }
+  
+  /* Buffer bar */
+  .buffer-bar {
+    position: absolute;
+    height: 100%;
+    background-color: rgba(200, 200, 200, 0.5);
+  }
+  
+  /* Progress bar */
+  .progress-bar {
+    position: absolute;
+    height: 100%;
+    background-color: rgb(43, 0, 255); /* color rojo estilo YouTube */
+  }
+  
+  /* Marcadores/Capítulos */
+  .chapter-marker {
+    position: absolute;
+    top: -2px; /* Pequeño puntito por encima */
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: #fff;
+    cursor: pointer;
+  }
+  
+  /* Fila de controles inferiores */
+  .controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+  }
+  
+  /* Sección izquierda */
+  .controls-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .control-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .control-btn:hover {
+    color: #ccc;
+  }
+  
+  /* Texto de tiempo */
+  .time-text {
+    font-size: 0.9rem;
+    color: #fff;
+    margin-left: 4px;
+  }
+  
+  /* Sección derecha */
+  .controls-right {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Menú de configuración (3 puntitos) */
+  .settings-wrapper {
+    position: relative;
+  }
+  
+  .settings-menu {
+    position: absolute;
+    bottom: 40px; /* Ajusta según necesites */
+    right: 0;
+    background-color: #333;
+    padding: 8px;
+    border-radius: 4px;
+    min-width: 120px;
+    z-index: 100;
+  }
+  
+  .settings-option {
+    cursor: pointer;
+    margin-bottom: 8px;
+    color: #fff;
+  }
+  
+  .settings-option:hover {
+    color: #ccc;
+  }
+  
+  /* Submenú de calidades */
+  .quality-options {
+    display: flex;
+    flex-direction: column;
+    margin-top: 8px;
+  }
+  
+  .quality-item {
+    cursor: pointer;
+    padding: 4px;
+    color: #fff;
+  }
+  
+  .quality-item:hover {
+    background-color: #444;
+  }
+  .cc-wrapper {
+    position: relative;
+    margin: 0 8px; /* Separación a gusto */
+  }
+  
+  .cc-menu {
+    position: absolute;
+    bottom: 40px; /* Ajusta para que aparezca encima de la barra */
+    right: 0;     /* O left: 0, si prefieres */
+    background-color: #333;
+    padding: 8px;
+    border-radius: 4px;
+    min-width: 100px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .cc-item {
+    cursor: pointer;
+    margin-bottom: 4px;
+    color: #fff;
+  }
+  
+  .cc-item:hover {
+    color: #ccc;
+  }
+  
+  
