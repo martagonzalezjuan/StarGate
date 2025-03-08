@@ -12,7 +12,7 @@ function App() {
   const galleryRef = useRef(null);
   const aboutRef = useRef(null);
 
-  // Definir los videos disponibles en `assets/`
+  // Videos disponibles en `assets/`
   const videos = [
     {
       id: 1,
