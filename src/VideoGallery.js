@@ -3,15 +3,15 @@ import './VideoGallery.css';
 
 function VideoGallery() {
   // En lugar de usar la API, cargamos el video local
-  const localVideoUrl = process.env.PUBLIC_URL + "/video_hubble_4k.mp4"; 
-  const subtitlesEnUrl = process.env.PUBLIC_URL + "/sub_hubble_en.vtt"; 
-  const subtitlesEsUrl = process.env.PUBLIC_URL + "/sub_hubble_es.vtt"; 
+  const localVideoUrl = process.env.PUBLIC_URL + "/assets/video_hubble_4k.mp4"; 
+  const subtitlesEnUrl = process.env.PUBLIC_URL + "/assets/sub_hubble_en.vtt"; 
+  const subtitlesEsUrl = process.env.PUBLIC_URL + "/assets/sub_hubble_es.vtt"; 
 
   const [currentVideoUrl, setCurrentVideoUrl] = useState(localVideoUrl);
 
   return (
     <div className="video-gallery">
-      <h2>Video Local</h2>
+      <h2>Video</h2>
       <div className="video-display">
         <div className="video-selected">
           <video controls width="100%">
