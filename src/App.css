@@ -76,6 +76,9 @@ html, body {
   background-color: #000; /* Asegura fondo negro global */
   color: #fff;            /* Texto blanco por defecto */
 }
+.main-content {
+  padding-bottom: 60px; 
+}
 
 /* Botón */
 button {
@@ -88,8 +91,9 @@ button {
 /* Sección de Videos */
 .videos-section {
   background: #111;
-  padding: 40px 20px;
+  padding: 40px 20px 60px 20px; 
 }
+
 html {
   scroll-behavior: smooth;
 }

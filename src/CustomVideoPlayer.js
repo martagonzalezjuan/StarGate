@@ -39,6 +39,9 @@ function CustomVideoPlayer({ videoData }) {
   const [duration, setDuration] = useState(0);
   const [buffered, setBuffered] = useState(0);
 
+  // Estado para mostrar overlay de cambio de calidad
+  const [isChangingQuality, setIsChangingQuality] = useState(false);
+
   // Capítulos (opcional)
   const chapters = videoData.chapters || [];
 
@@ -99,7 +102,6 @@ function CustomVideoPlayer({ videoData }) {
   // --- Menús: Cerrar al hacer clic fuera ---
   useEffect(() => {
     function handleClickOutside(event) {
-      // Si se hace clic fuera del menú de configuraciones y del icono:
       if (
         showSettings &&
         settingsMenuRef.current &&
@@ -108,7 +110,6 @@ function CustomVideoPlayer({ videoData }) {
         setShowSettings(false);
         setShowQualityOptions(false);
       }
-      // Lo mismo para el menú de subtítulos
       if (
         showSubtitleOptions &&
         ccMenuRef.current &&
@@ -118,14 +119,12 @@ function CustomVideoPlayer({ videoData }) {
       }
     }
 
-    // Solo si algún menú está abierto, escuchamos clicks en todo el documento
     if (showSettings || showSubtitleOptions) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
     }
 
-    // Cleanup
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -166,38 +165,46 @@ function CustomVideoPlayer({ videoData }) {
     }
   };
 
-  // --- Cambio de calidad ---
+  // --- Cambio de calidad sin reiniciar desde el principio y minimizando flicker ---
   const handleQualityChange = (quality) => {
+    if (!videoRef.current) return;
+    const current = videoRef.current.currentTime;
+    const wasPlaying = !videoRef.current.paused;
     setSelectedResolution(quality);
     setShowQualityOptions(false);
 
-    if (videoRef.current) {
-      const wasPlaying = !videoRef.current.paused;
-      videoRef.current.pause();
-      videoRef.current.load(); // recarga la nueva fuente
+    // Activamos overlay para cubrir el video
+    setIsChangingQuality(true);
+
+    const sourceElement = videoRef.current.querySelector("source");
+    if (sourceElement) {
+      sourceElement.src = `${basePath}video${videoData.id}_${quality}.mp4`;
+    } else {
+      videoRef.current.src = `${basePath}video${videoData.id}_${quality}.mp4`;
+    }
+    videoRef.current.load();
+    videoRef.current.onloadedmetadata = () => {
+      videoRef.current.currentTime = current;
       if (wasPlaying) {
         videoRef.current.play();
         setIsPlaying(true);
       }
-    }
+      // Después de un corto delay, quitamos el overlay
+      setTimeout(() => {
+        setIsChangingQuality(false);
+      }, 300);
+    };
   };
 
   // --- Cambio de subtítulos ---
   const handleSubtitleChange = (lang) => {
     const tracks = videoRef.current?.textTracks;
     if (!tracks) return;
-
     for (let i = 0; i < tracks.length; i++) {
       if (lang === "Off") {
-        // Desactiva todos
         tracks[i].mode = "disabled";
       } else {
-        // Coincide con el srclang (e.g. "en", "es")
-        if (tracks[i].language === lang) {
-          tracks[i].mode = "showing";
-        } else {
-          tracks[i].mode = "disabled";
-        }
+        tracks[i].mode = tracks[i].language === lang ? "showing" : "disabled";
       }
     }
     setCurrentSubtitle(lang);
@@ -227,7 +234,6 @@ function CustomVideoPlayer({ videoData }) {
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
-  // --- Porcentajes para la barra ---
   const progressPercent = duration ? (currentTime / duration) * 100 : 0;
   const bufferPercent = duration ? (buffered / duration) * 100 : 0;
 
@@ -271,6 +277,10 @@ function CustomVideoPlayer({ videoData }) {
           />
         </audio>
       )}
+
+      {/* Overlay para cambio de calidad */}
+      {isChangingQuality && <div className="quality-overlay"></div>}
+
       <div className={`controls-bar ${showControls ? "" : "hidden"}`}>
         {/* Barra de progreso */}
         <div className="progress-container" onClick={handleSeek}>
@@ -279,7 +289,6 @@ function CustomVideoPlayer({ videoData }) {
             className="progress-bar"
             style={{ width: `${progressPercent}%` }}
           />
-          {/* Marcadores de capítulos (opcional) */}
           {chapters.map((chapter, index) => {
             const chapterPercent = duration
               ? (chapter.time / duration) * 100
@@ -298,7 +307,6 @@ function CustomVideoPlayer({ videoData }) {
         {/* Fila inferior de controles */}
         <div className="controls-row">
           <div className="controls-left">
-            {/* Play/Pause */}
             <button
               className="control-btn"
               onClick={(e) => {
@@ -308,54 +316,51 @@ function CustomVideoPlayer({ videoData }) {
             >
               {isPlaying ? <FaPause /> : <FaPlay />}
             </button>
-            {/* Tiempo transcurrido / total */}
             <span className="time-text">
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
           </div>
 
           <div className="controls-right">
-            {/* Volumen */}
             <button className="control-btn" onClick={handleMuteToggle}>
               {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
             </button>
 
-            {/* Botón de subtítulos (CC) */}
-            {videoData.subtitles && videoData.subtitles.length > 0 && (
-              <div className="cc-wrapper" ref={ccMenuRef}>
-                <button
-                  className="control-btn"
-                  onClick={() => setShowSubtitleOptions(!showSubtitleOptions)}
-                >
-                  <FaClosedCaptioning />
-                </button>
-                {showSubtitleOptions && (
-                  <div className="cc-menu">
-                    {videoData.subtitles.map((lang) => (
+            <div className="cc-wrapper" ref={ccMenuRef}>
+              {videoData.subtitles && videoData.subtitles.length > 0 && (
+                <>
+                  <button
+                    className="control-btn"
+                    onClick={() => setShowSubtitleOptions(!showSubtitleOptions)}
+                  >
+                    <FaClosedCaptioning />
+                  </button>
+                  {showSubtitleOptions && (
+                    <div className="cc-menu">
+                      {videoData.subtitles.map((lang) => (
+                        <div
+                          key={lang}
+                          className="cc-item"
+                          onClick={() => handleSubtitleChange(lang)}
+                        >
+                          {lang.toUpperCase()}
+                        </div>
+                      ))}
                       <div
-                        key={lang}
                         className="cc-item"
-                        onClick={() => handleSubtitleChange(lang)}
+                        onClick={() => handleSubtitleChange("Off")}
                       >
-                        {lang.toUpperCase()}
+                        Off
                       </div>
-                    ))}
-                    <div
-                      className="cc-item"
-                      onClick={() => handleSubtitleChange("Off")}
-                    >
-                      Off
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                </>
+              )}
+            </div>
 
-            {/* Fullscreen */}
             <button className="control-btn" onClick={handleFullscreen}>
               {isFullscreen ? <FaCompress /> : <FaExpand />}
             </button>
-            {/* Menu calidad */}
             <div className="settings-wrapper" ref={settingsMenuRef}>
               <button
                 className="control-btn"
@@ -368,12 +373,9 @@ function CustomVideoPlayer({ videoData }) {
               </button>
               {showSettings && (
                 <div className="settings-menu">
-                  {/* Título opcional, para indicar la calidad actual */}
                   <div className="settings-option">
                     Calidad: {selectedResolution}
                   </div>
-
-                  {/* Opciones de calidad: se muestran inmediatamente */}
                   {videoData.resolutions.map((res) => (
                     <div
                       key={res}

@@ -64,23 +64,23 @@ function App() {
           </ul>
         </nav>
       </header>
+      <main className="main-content">
+        {/* Sección Home con APOD */}
+        <section ref={homeRef} className="hero">
+          <div className="hero-bg">
+            <img src={apodData.url} alt={apodData.title} />
+          </div>
+          <div className="hero-content">
+            <h2>{apodData.title}</h2>
+            <p>{apodData.explanation}</p>
+          </div>
+        </section>
 
-      {/* Sección Home con APOD */}
-      <section ref={homeRef} className="hero">
-        <div className="hero-bg">
-          <img src={apodData.url} alt={apodData.title} />
-        </div>
-        <div className="hero-content">
-          <h2>{apodData.title}</h2>
-          <p>{apodData.explanation}</p>
-        </div>
-      </section>
-
-      {/* Sección de Videos */}
-      <section ref={videosRef} className="videos-section">
-        <VideoGallery videos={videos} />
-      </section>
-
+        {/* Sección de Videos */}
+        <section ref={videosRef} className="videos-section">
+          <VideoGallery videos={videos} />
+        </section>
+      </main>
       {/* Footer integrado */}
       <footer className="footer">
         <p>&copy; {new Date().getFullYear()} StarGate. All rights reserved.</p>

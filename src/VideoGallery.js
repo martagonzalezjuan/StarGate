@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import CustomVideoPlayer from './CustomVideoPlayer';
-import './VideoGallery.css';
+import React, { useState } from "react";
+import CustomVideoPlayer from "./CustomVideoPlayer";
+import "./VideoGallery.css";
 
 function VideoGallery({ videos }) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const currentVideo = videos && videos.length > 0 ? videos[currentVideoIndex] : null;
+  const currentVideo =
+    videos && videos.length > 0 ? videos[currentVideoIndex] : null;
 
   const handleVideoSelect = (index) => {
     if (index !== currentVideoIndex) {
@@ -28,7 +29,9 @@ function VideoGallery({ videos }) {
           {videos.map((video, index) => (
             <div
               key={video.id}
-              className={`slider-item ${index === currentVideoIndex ? 'active' : ''}`}
+              className={`slider-item ${
+                index === currentVideoIndex ? "active" : ""
+              }`}
               onClick={() => handleVideoSelect(index)}
             >
               <video muted>
