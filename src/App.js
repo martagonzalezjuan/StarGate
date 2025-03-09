@@ -66,7 +66,6 @@ function App() {
         <div className="hero-content">
           <h2>{apodData.title}</h2>
           <p>{apodData.explanation}</p>
-          
         </div>
       </section>
 
@@ -74,6 +73,11 @@ function App() {
       <section ref={videosRef} className="videos-section">
         <VideoGallery videos={videos} />
       </section>
+      
+      {/* Footer integrado */}
+      <footer className="footer">
+        <p>&copy; {new Date().getFullYear()} StarGate. All rights reserved.</p>
+      </footer>
     </div>
   );
 }

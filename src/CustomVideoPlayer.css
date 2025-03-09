@@ -1,7 +1,8 @@
 /* Contenedor del reproductor */
 .video-container {
     position: relative;
-    width: 800px; /* Ajusta el tamaño que desees */
+    width: 100%;        /* Ocupa todo el ancho disponible */
+    max-width: 800px;
     margin: 0 auto;
     background: black;
   }

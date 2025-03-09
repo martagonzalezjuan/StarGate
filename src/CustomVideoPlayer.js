@@ -349,46 +349,51 @@ function CustomVideoPlayer({ videoData }) {
             <button className="control-btn" onClick={handleFullscreen}>
               {isFullscreen ? <FaCompress /> : <FaExpand />}
             </button>
-
             {/* Menú de Configuración (tres puntitos) */}
-            <div className="settings-wrapper" ref={settingsMenuRef}>
+<div className="settings-wrapper" ref={settingsMenuRef}>
   <button
     className="control-btn"
-    onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }}
+    onClick={(e) => {
+      e.stopPropagation();
+      setShowSettings(!showSettings);
+    }}
   >
     <FaEllipsisH />
   </button>
   {showSettings && (
     <div className="settings-menu">
-      <div
-        className="settings-option"
-        onClick={(e) => { e.stopPropagation(); setShowQualityOptions(!showQualityOptions); }}
-      >
+      {/* Título opcional, para indicar la calidad actual */}
+      <div className="settings-option">
         Calidad: {selectedResolution}
       </div>
-      {showQualityOptions && (
-        <div className="quality-options">
-          {videoData.resolutions.map((res) => (
-            <div
-              key={res}
-              className="quality-item"
-              onClick={() => handleQualityChange(res)}
-            >
-              {res}
-            </div>
-          ))}
-          <div
-            className="quality-item"
-            onClick={() => handleQualityChange('Auto')}
-          >
-            Auto
-          </div>
+
+      {/* Opciones de calidad: se muestran inmediatamente */}
+      {videoData.resolutions.map((res) => (
+        <div
+          key={res}
+          className="quality-item"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleQualityChange(res);
+          }}
+        >
+          {res}
         </div>
-      )}
+      ))}
+      <div
+        className="quality-item"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleQualityChange('Auto');
+        }}
+      >
+        Auto
+      </div>
     </div>
   )}
 </div>
 
+            
           </div>
         </div>
       </div>

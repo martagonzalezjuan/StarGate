@@ -4,12 +4,19 @@
   background: #000;
 }
 
+
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: auto;
   background-color: #000;
+  z-index: 1000;
+  justify-content: space-between;
+  display: flex;
+  align-items: center;
+  padding: 20 20px;
 }
 
 .header-logo {
@@ -20,11 +27,13 @@
 .header-logo img {
   height: 40px; /* Ajusta según tu diseño */
   margin-right: 10px;
+  margin-left: 20px;
 }
 
 .header ul {
   list-style: none;
   display: flex;
+  margin-right: 30px;
   gap: 15px;
 }
 
@@ -59,7 +68,13 @@
   justify-content: center;
   height: 100%;
   text-align: center;
-  padding: 0 20px;
+  padding: 20 20px;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #000; /* Asegura fondo negro global */
+  color: #fff;            /* Texto blanco por defecto */
 }
 
 /* Botón */
@@ -78,3 +93,17 @@ button {
 html {
   scroll-behavior: smooth;
 }
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #000; /* Fondo negro */
+  justify-content: center;
+  padding: 20px 0;        /* Más espacio vertical */
+  display: flex;
+  font-size: 0.9rem;
+  z-index: 1000;
+  margin-top: 10px;       /* Separación desde el contenido anterior */
+}
+
