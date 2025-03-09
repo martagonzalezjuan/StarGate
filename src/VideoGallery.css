@@ -7,58 +7,57 @@
   align-items: center;
 }
 
-/* Centra el bloque del video en la página */
 .video-display {
+  /* Contenedor para video (izquierda) + carrusel (derecha) */
   display: flex;
-  justify-content: center; /* centra horizontalmente */
-  margin-bottom: 20px;
-  width: 100%;            /* ocupa todo el ancho disponible del contenedor */
+  flex-direction: row;
+  align-items: flex-start; /* Alineados arriba */
+  justify-content: space-between;
+  gap: 20px;            /* Espacio entre video y carrusel */
+  width: 80%;           /* Ajusta según tu diseño */
+  margin: 0 auto 20px;  /* Centra horizontalmente */
 }
 
-/* Contenedor que envuelve el video + título */
 .video-selected {
-  display: inline-block;  /* se ajusta al contenido (el video) */
+  /* El video ocupará el espacio sobrante */
+  flex: 1;
   background: #000;
   border-radius: 8px;
-  margin: 0 auto;         /* centrado adicional si fuera necesario */
-  padding: 0;
-  text-align: left;       /* título alineado a la izquierda */
-}
-
-/* El video mantiene su proporción y no se deforma */
-.video-selected video {
-  display: block; 
-  max-width: 100%;  /* se adapta si la pantalla es más pequeña que el video */
-  height: auto;     /* mantiene la relación de aspecto */
-}
-
-/* Título con más espacio vertical */
-.video-selected h3 {
-  margin: 20px;     /* ajusta el espacio que quieras */
   box-sizing: border-box;
+  margin: 0; 
+  padding: 0;
+  overflow: hidden; /* Para que el video y el fondo compartan bordes redondeados */
+}
+
+/* Ajustar el video a todo el ancho de .video-selected */
+.video-selected video {
+  display: block;
+  width: 100%;
+  height: auto; /* Mantiene la proporción */
+}
+
+/* Título alineado a la izquierda, con algo de margen vertical */
+.video-selected h3 {
+  margin: 10px;
   text-align: left;
 }
 
-/* Carrusel de miniaturas */
+/* Carrusel vertical a la derecha */
 .video-slider {
+  width: 200px;  /* Ancho fijo para el carrusel */
   display: flex;
-  overflow-x: auto;
+  flex-direction: column;
   gap: 10px;
-  padding-bottom: 10px;
-  width: 80%;        /* o 100%, según tu preferencia */
-  margin: 0 auto;
+  overflow-y: auto; /* Si hay muchos videos, se hace scroll vertical */
 }
 
+/* Ítems del carrusel */
 .slider-item {
-  min-width: 200px;
   background: #222;
   padding: 10px;
   border-radius: 8px;
   cursor: pointer;
-  flex-shrink: 0;
   transition: transform 0.3s;
-  flex: 0 0 auto;
-  margin-right: 10px;
 }
 
 .slider-item:hover {
@@ -69,8 +68,17 @@
   border: 2px solid #007bff;
 }
 
+/* Miniatura del video en el carrusel */
 .slider-item video {
-  width: 150px;
+  width: 100%;
   height: auto;
   border-radius: 4px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* Título del ítem en el carrusel */
+.slider-item p {
+  margin: 0;
+  text-align: center;
 }
