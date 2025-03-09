@@ -118,12 +118,14 @@
     position: absolute;
     bottom: 40px; /* Ajusta según necesites */
     left: 0;
+    transform: translateX(-50%);
     background-color: #333;
     padding: 8px;
     border-radius: 4px;
     min-width: 120px;
     z-index: 100;
   }
+
   
   .settings-option {
     cursor: pointer;
