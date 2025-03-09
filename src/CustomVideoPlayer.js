@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from "react";
 import {
   FaPlay,
   FaPause,
@@ -7,9 +7,9 @@ import {
   FaExpand,
   FaCompress,
   FaEllipsisH,
-  FaClosedCaptioning
-} from 'react-icons/fa';
-import './CustomVideoPlayer.css';
+  FaClosedCaptioning,
+} from "react-icons/fa";
+import "./CustomVideoPlayer.css";
 
 function CustomVideoPlayer({ videoData }) {
   const videoRef = useRef(null);
@@ -17,8 +17,8 @@ function CustomVideoPlayer({ videoData }) {
   const containerRef = useRef(null);
 
   // Refs para los menús
-  const settingsMenuRef = useRef(null);  // Menú de configuraciones (3 puntitos)
-  const ccMenuRef = useRef(null);        // Menú de subtítulos (CC)
+  const settingsMenuRef = useRef(null); // Menú de configuraciones (3 puntitos)
+  const ccMenuRef = useRef(null); // Menú de subtítulos (CC)
 
   // --- Estados del reproductor ---
   const [isPlaying, setIsPlaying] = useState(false);
@@ -32,7 +32,7 @@ function CustomVideoPlayer({ videoData }) {
 
   // Subtítulos: CC
   const [showSubtitleOptions, setShowSubtitleOptions] = useState(false);
-  const [currentSubtitle, setCurrentSubtitle] = useState('Off');
+  const [currentSubtitle, setCurrentSubtitle] = useState("Off");
 
   // Tiempo
   const [currentTime, setCurrentTime] = useState(0);
@@ -43,10 +43,11 @@ function CustomVideoPlayer({ videoData }) {
   const chapters = videoData.chapters || [];
 
   // Resolución seleccionada
-  const defaultResolution = videoData.resolutions.includes('720p')
-    ? '720p'
-    : videoData.resolutions[0] || 'Auto';
-  const [selectedResolution, setSelectedResolution] = useState(defaultResolution);
+  const defaultResolution = videoData.resolutions.includes("720p")
+    ? "720p"
+    : videoData.resolutions[0] || "Auto";
+  const [selectedResolution, setSelectedResolution] =
+    useState(defaultResolution);
 
   // Ruta base para archivos
   const basePath = `${process.env.PUBLIC_URL}/assets/video${videoData.id}/`;
@@ -80,18 +81,18 @@ function CustomVideoPlayer({ videoData }) {
       }
     };
 
-    vid.addEventListener('play', handlePlay);
-    vid.addEventListener('pause', handlePause);
-    vid.addEventListener('timeupdate', handleTimeUpdate);
-    vid.addEventListener('loadedmetadata', handleLoadedMetadata);
-    vid.addEventListener('progress', handleProgress);
+    vid.addEventListener("play", handlePlay);
+    vid.addEventListener("pause", handlePause);
+    vid.addEventListener("timeupdate", handleTimeUpdate);
+    vid.addEventListener("loadedmetadata", handleLoadedMetadata);
+    vid.addEventListener("progress", handleProgress);
 
     return () => {
-      vid.removeEventListener('play', handlePlay);
-      vid.removeEventListener('pause', handlePause);
-      vid.removeEventListener('timeupdate', handleTimeUpdate);
-      vid.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      vid.removeEventListener('progress', handleProgress);
+      vid.removeEventListener("play", handlePlay);
+      vid.removeEventListener("pause", handlePause);
+      vid.removeEventListener("timeupdate", handleTimeUpdate);
+      vid.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      vid.removeEventListener("progress", handleProgress);
     };
   }, []);
 
@@ -119,14 +120,14 @@ function CustomVideoPlayer({ videoData }) {
 
     // Solo si algún menú está abierto, escuchamos clicks en todo el documento
     if (showSettings || showSubtitleOptions) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     } else {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     }
 
     // Cleanup
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showSettings, showSubtitleOptions]);
 
@@ -187,15 +188,15 @@ function CustomVideoPlayer({ videoData }) {
     if (!tracks) return;
 
     for (let i = 0; i < tracks.length; i++) {
-      if (lang === 'Off') {
+      if (lang === "Off") {
         // Desactiva todos
-        tracks[i].mode = 'disabled';
+        tracks[i].mode = "disabled";
       } else {
         // Coincide con el srclang (e.g. "en", "es")
         if (tracks[i].language === lang) {
-          tracks[i].mode = 'showing';
+          tracks[i].mode = "showing";
         } else {
-          tracks[i].mode = 'disabled';
+          tracks[i].mode = "disabled";
         }
       }
     }
@@ -220,10 +221,10 @@ function CustomVideoPlayer({ videoData }) {
 
   // --- Formatear tiempo ---
   const formatTime = (time) => {
-    if (!time || isNaN(time)) return '0:00';
+    if (!time || isNaN(time)) return "0:00";
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
   // --- Porcentajes para la barra ---
@@ -245,45 +246,44 @@ function CustomVideoPlayer({ videoData }) {
         muted={videoData.audio?.length > 0}
         onClick={handlePlayPause}
       >
-        {/* Fuente según la resolución seleccionada */}
         <source
           src={`${basePath}video${videoData.id}_${selectedResolution}.mp4`}
           type="video/mp4"
         />
-
         {/* Subtítulos WebVTT */}
-        {videoData.subtitles && videoData.subtitles.map((lang) => (
-          <track
-            key={lang}
-            label={lang.toUpperCase()}
-            kind="subtitles"
-            srcLang={lang}
-            src={`${basePath}sub${videoData.id}_${lang}.vtt`}
-          />
-        ))}
-
+        {videoData.subtitles &&
+          videoData.subtitles.map((lang) => (
+            <track
+              key={lang}
+              label={lang.toUpperCase()}
+              kind="subtitles"
+              srcLang={lang}
+              src={`${basePath}sub${videoData.id}_${lang}.vtt`}
+            />
+          ))}
         Tu navegador no soporta el elemento video.
       </video>
-
-      {/* AUDIO externo (opcional) */}
       {videoData.audio && videoData.audio.includes("en") && (
-        <audio ref={audioRef} style={{ display: 'none' }}>
+        <audio ref={audioRef} style={{ display: "none" }}>
           <source
-            src={`${basePath}audio${videoData.id}_en.wav`}
-            type="audio/wav"
+            src={`${basePath}audio${videoData.id}_en.aac`}
+            type="audio/aac"
           />
         </audio>
       )}
-
-      {/* CONTROLES personalizados */}
-      <div className={`controls-bar ${showControls ? '' : 'hidden'}`}>
+      <div className={`controls-bar ${showControls ? "" : "hidden"}`}>
         {/* Barra de progreso */}
         <div className="progress-container" onClick={handleSeek}>
           <div className="buffer-bar" style={{ width: `${bufferPercent}%` }} />
-          <div className="progress-bar" style={{ width: `${progressPercent}%` }} />
+          <div
+            className="progress-bar"
+            style={{ width: `${progressPercent}%` }}
+          />
           {/* Marcadores de capítulos (opcional) */}
           {chapters.map((chapter, index) => {
-            const chapterPercent = duration ? (chapter.time / duration) * 100 : 0;
+            const chapterPercent = duration
+              ? (chapter.time / duration) * 100
+              : 0;
             return (
               <div
                 key={index}
@@ -299,9 +299,15 @@ function CustomVideoPlayer({ videoData }) {
         <div className="controls-row">
           <div className="controls-left">
             {/* Play/Pause */}
-            <button className="control-btn" onClick={(e) => { e.stopPropagation(); handlePlayPause(); }}>
-  {isPlaying ? <FaPause /> : <FaPlay />}
-</button>
+            <button
+              className="control-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePlayPause();
+              }}
+            >
+              {isPlaying ? <FaPause /> : <FaPlay />}
+            </button>
             {/* Tiempo transcurrido / total */}
             <span className="time-text">
               {formatTime(currentTime)} / {formatTime(duration)}
@@ -336,7 +342,7 @@ function CustomVideoPlayer({ videoData }) {
                     ))}
                     <div
                       className="cc-item"
-                      onClick={() => handleSubtitleChange('Off')}
+                      onClick={() => handleSubtitleChange("Off")}
                     >
                       Off
                     </div>
@@ -349,51 +355,49 @@ function CustomVideoPlayer({ videoData }) {
             <button className="control-btn" onClick={handleFullscreen}>
               {isFullscreen ? <FaCompress /> : <FaExpand />}
             </button>
-            {/* Menú de Configuración (tres puntitos) */}
-<div className="settings-wrapper" ref={settingsMenuRef}>
-  <button
-    className="control-btn"
-    onClick={(e) => {
-      e.stopPropagation();
-      setShowSettings(!showSettings);
-    }}
-  >
-    <FaEllipsisH />
-  </button>
-  {showSettings && (
-    <div className="settings-menu">
-      {/* Título opcional, para indicar la calidad actual */}
-      <div className="settings-option">
-        Calidad: {selectedResolution}
-      </div>
+            {/* Menu calidad */}
+            <div className="settings-wrapper" ref={settingsMenuRef}>
+              <button
+                className="control-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowSettings(!showSettings);
+                }}
+              >
+                <FaEllipsisH />
+              </button>
+              {showSettings && (
+                <div className="settings-menu">
+                  {/* Título opcional, para indicar la calidad actual */}
+                  <div className="settings-option">
+                    Calidad: {selectedResolution}
+                  </div>
 
-      {/* Opciones de calidad: se muestran inmediatamente */}
-      {videoData.resolutions.map((res) => (
-        <div
-          key={res}
-          className="quality-item"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleQualityChange(res);
-          }}
-        >
-          {res}
-        </div>
-      ))}
-      <div
-        className="quality-item"
-        onClick={(e) => {
-          e.stopPropagation();
-          handleQualityChange('Auto');
-        }}
-      >
-        Auto
-      </div>
-    </div>
-  )}
-</div>
-
-            
+                  {/* Opciones de calidad: se muestran inmediatamente */}
+                  {videoData.resolutions.map((res) => (
+                    <div
+                      key={res}
+                      className="quality-item"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleQualityChange(res);
+                      }}
+                    >
+                      {res}
+                    </div>
+                  ))}
+                  <div
+                    className="quality-item"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleQualityChange("Auto");
+                    }}
+                  >
+                    Auto
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
