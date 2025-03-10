@@ -1,7 +1,7 @@
 /* Contenedor del reproductor */
 .video-container {
     position: relative;
-    width: 100%;        /* Ocupa todo el ancho disponible */
+    width: 100%;       
     max-width: 800px;
     margin: 0 auto;
     background: black;
@@ -108,15 +108,14 @@
     display: flex;
     align-items: center;
   }
-  
-  /* Menú de configuración (3 puntitos) */
+
   .settings-wrapper {
     position: relative;
   }
   
   .settings-menu {
     position: absolute;
-    bottom: 40px; /* Ajusta según necesites */
+    bottom: 40px; 
     left: 0;
     transform: translateX(-50%);
     background-color: #333;

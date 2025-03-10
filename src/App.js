@@ -83,7 +83,7 @@ function App() {
       </main>
       {/* Footer integrado */}
       <footer className="footer">
-        <p>&copy; {new Date().getFullYear()} StarGate. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} StarGate. No rights reserved.</p>
       </footer>
     </div>
   );

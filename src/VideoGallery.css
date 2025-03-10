@@ -82,3 +82,35 @@
   margin: 0;
   text-align: center;
 }
+/* Para pantallas móviles */
+@media (max-width: 768px) {
+  /* Cambia la disposición del contenedor que envuelve el video y el carousel */
+  .video-display {
+    flex-direction: column;
+    width: 100%;
+    margin: 0 auto 20px;
+  }
+
+  /* El contenedor del video se mantiene al 100% */
+  .video-selected {
+    width: 100%;
+  }
+
+  /* El carousel pasa a ser horizontal */
+  .video-slider {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin-top: 20px;
+  }
+
+  /* Ajusta los ítems del carousel para que tengan un ancho adecuado */
+  .slider-item {
+    flex: 0 0 auto;
+    width: 40%; /* Puedes ajustar este valor segun tus necesidades */
+  }
+}
+
