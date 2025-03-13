@@ -8,50 +8,62 @@
 }
 
 .video-display {
-  /* Contenedor para video (izquierda) + carrusel (derecha) */
   display: flex;
   flex-direction: row;
-  align-items: flex-start; /* Alineados arriba */
-  justify-content: space-between;
-  gap: 20px;            /* Espacio entre video y carrusel */
-  width: 80%;           /* Ajusta según tu diseño */
-  margin: 0 auto 20px;  /* Centra horizontalmente */
+  gap: 20px;
+  width: 80%;
+  margin: 0 auto 20px;
+}
+
+/* Columna izquierda: reproductor y panel de capítulo */
+.video-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .video-selected {
-  /* El video ocupará el espacio sobrante */
-  flex: 1;
   background: #000;
   border-radius: 8px;
+  padding: 20px;
   box-sizing: border-box;
-  margin: 0; 
-  padding: 0;
-  overflow: hidden; /* Para que el video y el fondo compartan bordes redondeados */
+  overflow: hidden;
 }
 
-/* Ajustar el video a todo el ancho de .video-selected */
-.video-selected video {
-  display: block;
-  width: 100%;
-  height: auto; /* Mantiene la proporción */
-}
-
-/* Título alineado a la izquierda, con algo de margen vertical */
 .video-selected h3 {
-  margin: 10px;
+  margin: 10px 0 0;
   text-align: left;
 }
 
-/* Carrusel vertical a la derecha */
+/* Panel de contenido de capítulo */
+.chapter-content {
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  margin-top: 20px;
+  padding: 20px;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Columna derecha: carrusel vertical */
 .video-slider {
-  width: 200px;  /* Ancho fijo para el carrusel */
+  width: 200px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  overflow-y: auto; /* Si hay muchos videos, se hace scroll vertical */
+  overflow-y: auto;
 }
 
-/* Ítems del carrusel */
 .slider-item {
   background: #222;
   padding: 10px;
@@ -68,7 +80,6 @@
   border: 2px solid #007bff;
 }
 
-/* Miniatura del video en el carrusel */
 .slider-item video {
   width: 100%;
   height: auto;
@@ -77,40 +88,27 @@
   margin-bottom: 5px;
 }
 
-/* Título del ítem en el carrusel */
 .slider-item p {
   margin: 0;
   text-align: center;
 }
-/* Para pantallas móviles */
+
+/* Responsividad: en móviles */
 @media (max-width: 768px) {
-  /* Cambia la disposición del contenedor que envuelve el video y el carousel */
   .video-display {
     flex-direction: column;
     width: 100%;
-    margin: 0 auto 20px;
   }
-
-  /* El contenedor del video se mantiene al 100% */
-  .video-selected {
-    width: 100%;
-  }
-
-  /* El carousel pasa a ser horizontal */
   .video-slider {
     width: 100%;
-    display: flex;
     flex-direction: row;
     gap: 10px;
     overflow-x: auto;
     overflow-y: hidden;
     margin-top: 20px;
   }
-
-  /* Ajusta los ítems del carousel para que tengan un ancho adecuado */
   .slider-item {
     flex: 0 0 auto;
-    width: 40%; /* Puedes ajustar este valor segun tus necesidades */
+    width: 45%;
   }
 }
-

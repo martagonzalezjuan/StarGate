@@ -1,6 +1,6 @@
 *.mp4
 *.wav
-*.vtt 
+
 
 # Dependencies
 /node_modules

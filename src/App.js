@@ -11,7 +11,7 @@ function App() {
   const homeRef = useRef(null);
   const videosRef = useRef(null);
 
-  // Videos disponibles en `assets/`
+  // Videos disponibles en `assets/` con capítulos personalizados
   const videos = [
     {
       id: 1,
@@ -19,6 +19,7 @@ function App() {
       resolutions: ["4k", "1080p", "720p", "480p", "360p"],
       subtitles: ["en", "es", "fr"],
       audio: ["en"],
+      chapters: [],
     },
     {
       id: 2,
@@ -26,6 +27,7 @@ function App() {
       resolutions: ["4k", "1080p", "720p", "480p", "360p"],
       subtitles: ["en", "es", "fr"],
       audio: ["en"],
+      chapters: [],
     },
     {
       id: 3,
@@ -33,6 +35,7 @@ function App() {
       resolutions: ["4k", "1080p", "720p", "480p", "360p"],
       subtitles: ["en", "es", "fr"],
       audio: ["en"],
+      chapters: [],
     },
   ];
 
@@ -81,7 +84,6 @@ function App() {
           <VideoGallery videos={videos} />
         </section>
       </main>
-      {/* Footer integrado */}
       <footer className="footer">
         <p>&copy; {new Date().getFullYear()} StarGate. No rights reserved.</p>
       </footer>

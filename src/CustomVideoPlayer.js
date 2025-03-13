@@ -11,26 +11,37 @@ import {
 } from "react-icons/fa";
 import "./CustomVideoPlayer.css";
 
-function CustomVideoPlayer({ videoData }) {
+// Helper para convertir "HH:MM:SS.mmm" a segundos
+const parseTime = (timeStr) => {
+  const parts = timeStr.split(":");
+  if (parts.length === 3) {
+    return (
+      parseFloat(parts[0]) * 3600 +
+      parseFloat(parts[1]) * 60 +
+      parseFloat(parts[2])
+    );
+  } else if (parts.length === 2) {
+    return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+  }
+  return 0;
+};
+
+function CustomVideoPlayer({ videoData, onChapterChange }) {
   const videoRef = useRef(null);
   const audioRef = useRef(null);
   const containerRef = useRef(null);
 
-  // Refs para los menús
-  const settingsMenuRef = useRef(null); // Menú de configuraciones (3 puntitos)
-  const ccMenuRef = useRef(null); // Menú de subtítulos (CC)
+  // Refs para menús
+  const settingsMenuRef = useRef(null);
+  const ccMenuRef = useRef(null);
 
-  // --- Estados del reproductor ---
+  // Estados del reproductor
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
-
-  // Menú de configuración
   const [showSettings, setShowSettings] = useState(false);
   const [showQualityOptions, setShowQualityOptions] = useState(false);
-
-  // Subtítulos: CC
   const [showSubtitleOptions, setShowSubtitleOptions] = useState(false);
   const [currentSubtitle, setCurrentSubtitle] = useState("Off");
 
@@ -39,27 +50,25 @@ function CustomVideoPlayer({ videoData }) {
   const [duration, setDuration] = useState(0);
   const [buffered, setBuffered] = useState(0);
 
-  // Estado para mostrar overlay de cambio de calidad
+  // Overlay para cambio de calidad
   const [isChangingQuality, setIsChangingQuality] = useState(false);
 
-  // Capítulos (opcional)
-  const chapters = videoData.chapters || [];
+  // Estados para capítulos (se cargarán manualmente desde el VTT)
+  const [chapterCues, setChapterCues] = useState([]); // Todas las cues
+  const [activeChapter, setActiveChapter] = useState(null); // Cue activa
 
-  // Resolución seleccionada
-  const defaultResolution = videoData.resolutions.includes("720p")
-    ? "720p"
+  // Resolución y ruta base
+  const defaultResolution = videoData.resolutions.includes("4k")
+    ? "4k"
     : videoData.resolutions[0] || "Auto";
   const [selectedResolution, setSelectedResolution] =
     useState(defaultResolution);
-
-  // Ruta base para archivos
   const basePath = `${process.env.PUBLIC_URL}/assets/video${videoData.id}/`;
 
-  // Efectos de video
+  // Manejo de reproducción y sincronización
   useEffect(() => {
     const vid = videoRef.current;
     if (!vid) return;
-
     const handlePlay = () => {
       setIsPlaying(true);
       if (audioRef.current) audioRef.current.play();
@@ -69,9 +78,10 @@ function CustomVideoPlayer({ videoData }) {
       if (audioRef.current) audioRef.current.pause();
     };
     const handleTimeUpdate = () => {
-      setCurrentTime(vid.currentTime);
+      const time = vid.currentTime;
+      setCurrentTime(time);
       if (audioRef.current) {
-        audioRef.current.currentTime = vid.currentTime;
+        audioRef.current.currentTime = time;
       }
     };
     const handleLoadedMetadata = () => {
@@ -99,7 +109,66 @@ function CustomVideoPlayer({ videoData }) {
     };
   }, []);
 
-  // --- Menús: Cerrar al hacer clic fuera ---
+  // Cargar y parsear manualmente el archivo VTT de capítulos
+  useEffect(() => {
+    fetch(`${basePath}chapters.vtt`)
+      .then((res) => res.text())
+      .then((text) => {
+        // Remover la cabecera WEBVTT y líneas vacías
+        const lines = text
+          .split("\n")
+          .map((l) => l.trim())
+          .filter((l) => l && l !== "WEBVTT");
+        const cues = [];
+        for (let i = 0; i < lines.length; ) {
+          const timeLine = lines[i];
+          const timeMatch = timeLine.match(/([\d:.]+)\s*-->\s*([\d:.]+)/);
+          if (timeMatch) {
+            const startTime = parseTime(timeMatch[1]);
+            const endTime = parseTime(timeMatch[2]);
+            const cueText = lines[i + 1] || "";
+            try {
+              const data = JSON.parse(cueText.trim());
+              data.start = startTime;
+              data.end = endTime;
+              cues.push(data);
+            } catch (e) {
+              cues.push({
+                label: cueText.trim(),
+                start: startTime,
+                end: endTime,
+              });
+            }
+            i += 2;
+          } else {
+            i++;
+          }
+        }
+        console.log("Cues from VTT:", cues);
+        setChapterCues(cues);
+      })
+      .catch((error) => console.error("Error loading chapters VTT:", error));
+  }, [basePath]);
+
+  // Actualizar el capítulo activo en función del tiempo del video
+  useEffect(() => {
+    if (chapterCues.length > 0) {
+      const currentCue = chapterCues.find(
+        (cue) => currentTime >= cue.start && currentTime < cue.end
+      );
+      if (
+        currentCue &&
+        (!activeChapter || currentCue.label !== activeChapter.label)
+      ) {
+        setActiveChapter(currentCue);
+        if (typeof onChapterChange === "function") {
+          onChapterChange(currentCue);
+        }
+      }
+    }
+  }, [currentTime, chapterCues, activeChapter, onChapterChange]);
+
+  // Cerrar menús al hacer clic fuera
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -118,19 +187,16 @@ function CustomVideoPlayer({ videoData }) {
         setShowSubtitleOptions(false);
       }
     }
-
     if (showSettings || showSubtitleOptions) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
     }
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showSettings, showSubtitleOptions]);
 
-  // --- Play / Pause ---
   const handlePlayPause = () => {
     if (!videoRef.current) return;
     if (videoRef.current.paused) {
@@ -142,18 +208,14 @@ function CustomVideoPlayer({ videoData }) {
     }
   };
 
-  // --- Mute / Unmute ---
   const handleMuteToggle = () => {
     if (!videoRef.current) return;
     const mutedValue = !videoRef.current.muted;
     videoRef.current.muted = mutedValue;
-    if (audioRef.current) {
-      audioRef.current.muted = mutedValue;
-    }
+    if (audioRef.current) audioRef.current.muted = mutedValue;
     setIsMuted(mutedValue);
   };
 
-  // --- Fullscreen ---
   const handleFullscreen = () => {
     if (!containerRef.current) return;
     if (!document.fullscreenElement) {
@@ -165,17 +227,13 @@ function CustomVideoPlayer({ videoData }) {
     }
   };
 
-  // --- Cambio de calidad sin reiniciar desde el principio y minimizando flicker ---
   const handleQualityChange = (quality) => {
     if (!videoRef.current) return;
     const current = videoRef.current.currentTime;
     const wasPlaying = !videoRef.current.paused;
     setSelectedResolution(quality);
     setShowQualityOptions(false);
-
-    // Activamos overlay para cubrir el video
     setIsChangingQuality(true);
-
     const sourceElement = videoRef.current.querySelector("source");
     if (sourceElement) {
       sourceElement.src = `${basePath}video${videoData.id}_${quality}.mp4`;
@@ -189,14 +247,12 @@ function CustomVideoPlayer({ videoData }) {
         videoRef.current.play();
         setIsPlaying(true);
       }
-      // Después de un corto delay, quitamos el overlay
       setTimeout(() => {
         setIsChangingQuality(false);
       }, 300);
     };
   };
 
-  // --- Cambio de subtítulos ---
   const handleSubtitleChange = (lang) => {
     const tracks = videoRef.current?.textTracks;
     if (!tracks) return;
@@ -211,22 +267,18 @@ function CustomVideoPlayer({ videoData }) {
     setShowSubtitleOptions(false);
   };
 
-  // --- Seek (clic en la barra de progreso) ---
   const handleSeek = (e) => {
     if (!videoRef.current) return;
-    const rect = e.target.getBoundingClientRect();
+    const rect = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const width = rect.width;
-    const percent = clickX / width;
-    const newTime = percent * duration;
+    const newTime = (clickX / width) * duration;
     videoRef.current.currentTime = newTime;
   };
 
-  // --- Mouse Enter / Leave ---
   const handleMouseEnter = () => setShowControls(true);
   const handleMouseLeave = () => setShowControls(false);
 
-  // --- Formatear tiempo ---
   const formatTime = (time) => {
     if (!time || isNaN(time)) return "0:00";
     const minutes = Math.floor(time / 60);
@@ -244,8 +296,8 @@ function CustomVideoPlayer({ videoData }) {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* VIDEO principal */}
       <video
+        key={`${videoData.id}-${selectedResolution}`}
         ref={videoRef}
         className="video-player"
         controls={false}
@@ -256,7 +308,14 @@ function CustomVideoPlayer({ videoData }) {
           src={`${basePath}video${videoData.id}_${selectedResolution}.mp4`}
           type="video/mp4"
         />
-        {/* Subtítulos WebVTT */}
+        {/* Track de capítulos: usamos metadata para forzar la carga */}
+        <track
+          kind="metadata"
+          label="Chapters"
+          src={`${basePath}chapters.vtt`}
+          default
+        />
+        {/* Subtítulos */}
         {videoData.subtitles &&
           videoData.subtitles.map((lang) => (
             <track
@@ -267,44 +326,40 @@ function CustomVideoPlayer({ videoData }) {
               src={`${basePath}sub${videoData.id}_${lang}.vtt`}
             />
           ))}
-        Tu navegador no soporta el elemento video.
+        Tu navegador no soporta el elemento de video HTML5.
       </video>
       {videoData.audio && videoData.audio.includes("en") && (
         <audio ref={audioRef} style={{ display: "none" }}>
           <source
-            src={`${basePath}audio${videoData.id}_en.aac`}
+            src={`${basePath}audio${videoData.id}_en.m4a`}
             type="audio/aac"
           />
         </audio>
       )}
-
-      {/* Overlay para cambio de calidad */}
       {isChangingQuality && <div className="quality-overlay"></div>}
-
       <div className={`controls-bar ${showControls ? "" : "hidden"}`}>
-        {/* Barra de progreso */}
         <div className="progress-container" onClick={handleSeek}>
           <div className="buffer-bar" style={{ width: `${bufferPercent}%` }} />
           <div
             className="progress-bar"
             style={{ width: `${progressPercent}%` }}
           />
-          {chapters.map((chapter, index) => {
-            const chapterPercent = duration
-              ? (chapter.time / duration) * 100
-              : 0;
-            return (
-              <div
-                key={index}
-                className="chapter-marker"
-                style={{ left: `${chapterPercent}%` }}
-                title={chapter.label}
-              />
-            );
-          })}
+          {/* Dibujar marcadores usando las cues extraídas del VTT */}
+          {chapterCues.length > 0 &&
+            chapterCues.map((chapter, index) => {
+              const chapterPercent = duration
+                ? (chapter.start / duration) * 100
+                : 0;
+              return (
+                <div
+                  key={index}
+                  className="chapter-marker"
+                  style={{ left: `${chapterPercent}%` }}
+                  data-label={chapter.label}
+                />
+              );
+            })}
         </div>
-
-        {/* Fila inferior de controles */}
         <div className="controls-row">
           <div className="controls-left">
             <button
@@ -320,12 +375,10 @@ function CustomVideoPlayer({ videoData }) {
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
           </div>
-
           <div className="controls-right">
             <button className="control-btn" onClick={handleMuteToggle}>
               {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
             </button>
-
             <div className="cc-wrapper" ref={ccMenuRef}>
               {videoData.subtitles && videoData.subtitles.length > 0 && (
                 <>
@@ -357,7 +410,6 @@ function CustomVideoPlayer({ videoData }) {
                 </>
               )}
             </div>
-
             <button className="control-btn" onClick={handleFullscreen}>
               {isFullscreen ? <FaCompress /> : <FaExpand />}
             </button>
