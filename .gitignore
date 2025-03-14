@@ -1,6 +1,7 @@
 *.mp4
 *.wav
-
+*.aac
+*.m4a
 
 # Dependencies
 /node_modules
