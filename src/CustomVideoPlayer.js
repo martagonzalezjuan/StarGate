@@ -195,13 +195,27 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
     };
   }, [showSettings, showSubtitleOptions]);
 
-  const handlePlayPause = () => {
+  const handlePlayPause = async () => {
     if (!videoRef.current) return;
-    if (videoRef.current.paused) {
-      videoRef.current.play();
-      setIsPlaying(true);
-    } else {
-      videoRef.current.pause();
+
+    try {
+      if (videoRef.current.paused) {
+        // Try to play both video and audio
+        const playPromises = [
+          videoRef.current.play(),
+          audioRef.current?.play(),
+        ].filter(Boolean);
+
+        await Promise.all(playPromises);
+        setIsPlaying(true);
+      } else {
+        videoRef.current.pause();
+        if (audioRef.current) audioRef.current.pause();
+        setIsPlaying(false);
+      }
+    } catch (error) {
+      console.error("Playback error:", error);
+      // Handle autoplay restriction
       setIsPlaying(false);
     }
   };
@@ -287,6 +301,25 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
   const progressPercent = duration ? (currentTime / duration) * 100 : 0;
   const bufferPercent = duration ? (buffered / duration) * 100 : 0;
 
+  useEffect(() => {
+    const video = videoRef.current;
+    const audio = audioRef.current;
+
+    if (!video || !audio) return;
+
+    const handleTimeUpdate = () => {
+      if (Math.abs(video.currentTime - audio.currentTime) > 0.1) {
+        audio.currentTime = video.currentTime;
+      }
+    };
+
+    video.addEventListener("seeked", handleTimeUpdate);
+
+    return () => {
+      video.removeEventListener("seeked", handleTimeUpdate);
+    };
+  }, []);
+
   return (
     <div
       className="video-container"
@@ -299,7 +332,8 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
         ref={videoRef}
         className="video-player"
         controls={false}
-        muted={videoData.audio?.length > 0}
+        muted={isMuted} // Change this, was: muted={videoData.audio?.length > 0}
+        playsInline // Add this for iOS Safari
         onClick={handlePlayPause}
       >
         <source
@@ -332,10 +366,15 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
           style={{ display: "none" }}
           preload="auto"
           muted={isMuted}
+          crossOrigin="anonymous" // Add this for CORS support
         >
           <source
             src={`${basePath}audio${videoData.id}_en.m4a`}
             type="audio/aac"
+          />
+          <source
+            src={`${basePath}audio${videoData.id}_en.mp3`}
+            type="audio/mpeg"
           />
         </audio>
       )}
