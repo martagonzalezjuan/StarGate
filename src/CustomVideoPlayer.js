@@ -69,43 +69,41 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
   useEffect(() => {
     const vid = videoRef.current;
     if (!vid) return;
+
     const handlePlay = () => {
       setIsPlaying(true);
       if (audioRef.current) audioRef.current.play();
     };
+
     const handlePause = () => {
       setIsPlaying(false);
       if (audioRef.current) audioRef.current.pause();
     };
-    const handleTimeUpdate = () => {
-      const time = vid.currentTime;
-      setCurrentTime(time);
+
+    const handleSeeking = () => {
       if (audioRef.current) {
-        audioRef.current.currentTime = time;
+        audioRef.current.currentTime = vid.currentTime;
       }
     };
+
+    // Eliminem el timeupdate listener i només sincronitzem quan és necessari
     const handleLoadedMetadata = () => {
       setDuration(vid.duration);
-    };
-    const handleProgress = () => {
-      if (vid.buffered.length > 0) {
-        const bufferedEnd = vid.buffered.end(vid.buffered.length - 1);
-        setBuffered(bufferedEnd);
+      if (audioRef.current) {
+        audioRef.current.currentTime = vid.currentTime;
       }
     };
 
     vid.addEventListener("play", handlePlay);
     vid.addEventListener("pause", handlePause);
-    vid.addEventListener("timeupdate", handleTimeUpdate);
+    vid.addEventListener("seeking", handleSeeking);
     vid.addEventListener("loadedmetadata", handleLoadedMetadata);
-    vid.addEventListener("progress", handleProgress);
 
     return () => {
       vid.removeEventListener("play", handlePlay);
       vid.removeEventListener("pause", handlePause);
-      vid.removeEventListener("timeupdate", handleTimeUpdate);
+      vid.removeEventListener("seeking", handleSeeking);
       vid.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      vid.removeEventListener("progress", handleProgress);
     };
   }, []);
 
@@ -329,7 +327,12 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
         Tu navegador no soporta el elemento de video HTML5.
       </video>
       {videoData.audio && videoData.audio.includes("en") && (
-        <audio ref={audioRef} style={{ display: "none" }}>
+        <audio
+          ref={audioRef}
+          style={{ display: "none" }}
+          preload="auto"
+          muted={isMuted}
+        >
           <source
             src={`${basePath}audio${videoData.id}_en.m4a`}
             type="audio/aac"
