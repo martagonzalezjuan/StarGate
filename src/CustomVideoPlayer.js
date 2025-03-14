@@ -86,7 +86,6 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
       }
     };
 
-    // Eliminem el timeupdate listener i només sincronitzem quan és necessari
     const handleLoadedMetadata = () => {
       setDuration(vid.duration);
       if (audioRef.current) {
@@ -281,11 +280,18 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
 
   const handleSeek = (e) => {
     if (!videoRef.current) return;
+    e.preventDefault();
+
     const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    const clickX = x - rect.left;
     const width = rect.width;
     const newTime = (clickX / width) * duration;
-    videoRef.current.currentTime = newTime;
+
+    if (newTime >= 0 && newTime <= duration) {
+      videoRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
   };
 
   const handleMouseEnter = () => setShowControls(true);
@@ -317,6 +323,28 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
 
     return () => {
       video.removeEventListener("seeked", handleTimeUpdate);
+    };
+  }, []);
+
+  useEffect(() => {
+    const vid = videoRef.current;
+    if (!vid) return;
+
+    const handleTimeUpdate = () => {
+      requestAnimationFrame(() => {
+        setCurrentTime(vid.currentTime);
+        if (vid.buffered.length > 0) {
+          setBuffered(vid.buffered.end(vid.buffered.length - 1));
+        }
+      });
+    };
+
+    vid.addEventListener("timeupdate", handleTimeUpdate);
+    vid.addEventListener("progress", handleTimeUpdate);
+
+    return () => {
+      vid.removeEventListener("timeupdate", handleTimeUpdate);
+      vid.removeEventListener("progress", handleTimeUpdate);
     };
   }, []);
 
@@ -379,121 +407,125 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
         </audio>
       )}
       {isChangingQuality && <div className="quality-overlay"></div>}
-      <div className={`controls-bar ${showControls ? "" : "hidden"}`}>
-        <div className="progress-container" onClick={handleSeek}>
-          <div className="buffer-bar" style={{ width: `${bufferPercent}%` }} />
-          <div
-            className="progress-bar"
-            style={{ width: `${progressPercent}%` }}
-          />
-          {/* Dibujar marcadores usando las cues extraídas del VTT */}
-          {chapterCues.length > 0 &&
-            chapterCues.map((chapter, index) => {
-              const chapterPercent = duration
-                ? (chapter.start / duration) * 100
-                : 0;
-              return (
-                <div
-                  key={index}
-                  className="chapter-marker"
-                  style={{ left: `${chapterPercent}%` }}
-                  data-label={chapter.label}
-                />
-              );
-            })}
+      <div
+        className="progress-container"
+        onClick={handleSeek}
+        onTouchStart={handleSeek}
+        onTouchMove={handleSeek}
+        onMouseDown={handleSeek}
+      >
+        <div className="buffer-bar" style={{ width: `${bufferPercent}%` }} />
+        <div
+          className="progress-bar"
+          style={{ width: `${progressPercent}%` }}
+        />
+        {/* Dibujar marcadores usando las cues extraídas del VTT */}
+        {chapterCues.length > 0 &&
+          chapterCues.map((chapter, index) => {
+            const chapterPercent = duration
+              ? (chapter.start / duration) * 100
+              : 0;
+            return (
+              <div
+                key={index}
+                className="chapter-marker"
+                style={{ left: `${chapterPercent}%` }}
+                data-label={chapter.label}
+              />
+            );
+          })}
+      </div>
+      <div className="controls-row">
+        <div className="controls-left">
+          <button
+            className="control-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              handlePlayPause();
+            }}
+          >
+            {isPlaying ? <FaPause /> : <FaPlay />}
+          </button>
+          <span className="time-text">
+            {formatTime(currentTime)} / {formatTime(duration)}
+          </span>
         </div>
-        <div className="controls-row">
-          <div className="controls-left">
+        <div className="controls-right">
+          <button className="control-btn" onClick={handleMuteToggle}>
+            {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
+          </button>
+          <div className="cc-wrapper" ref={ccMenuRef}>
+            {videoData.subtitles && videoData.subtitles.length > 0 && (
+              <>
+                <button
+                  className="control-btn"
+                  onClick={() => setShowSubtitleOptions(!showSubtitleOptions)}
+                >
+                  <FaClosedCaptioning />
+                </button>
+                {showSubtitleOptions && (
+                  <div className="cc-menu">
+                    {videoData.subtitles.map((lang) => (
+                      <div
+                        key={lang}
+                        className="cc-item"
+                        onClick={() => handleSubtitleChange(lang)}
+                      >
+                        {lang.toUpperCase()}
+                      </div>
+                    ))}
+                    <div
+                      className="cc-item"
+                      onClick={() => handleSubtitleChange("Off")}
+                    >
+                      Off
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+          <button className="control-btn" onClick={handleFullscreen}>
+            {isFullscreen ? <FaCompress /> : <FaExpand />}
+          </button>
+          <div className="settings-wrapper" ref={settingsMenuRef}>
             <button
               className="control-btn"
               onClick={(e) => {
                 e.stopPropagation();
-                handlePlayPause();
+                setShowSettings(!showSettings);
               }}
             >
-              {isPlaying ? <FaPause /> : <FaPlay />}
+              <FaEllipsisH />
             </button>
-            <span className="time-text">
-              {formatTime(currentTime)} / {formatTime(duration)}
-            </span>
-          </div>
-          <div className="controls-right">
-            <button className="control-btn" onClick={handleMuteToggle}>
-              {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
-            </button>
-            <div className="cc-wrapper" ref={ccMenuRef}>
-              {videoData.subtitles && videoData.subtitles.length > 0 && (
-                <>
-                  <button
-                    className="control-btn"
-                    onClick={() => setShowSubtitleOptions(!showSubtitleOptions)}
-                  >
-                    <FaClosedCaptioning />
-                  </button>
-                  {showSubtitleOptions && (
-                    <div className="cc-menu">
-                      {videoData.subtitles.map((lang) => (
-                        <div
-                          key={lang}
-                          className="cc-item"
-                          onClick={() => handleSubtitleChange(lang)}
-                        >
-                          {lang.toUpperCase()}
-                        </div>
-                      ))}
-                      <div
-                        className="cc-item"
-                        onClick={() => handleSubtitleChange("Off")}
-                      >
-                        Off
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-            <button className="control-btn" onClick={handleFullscreen}>
-              {isFullscreen ? <FaCompress /> : <FaExpand />}
-            </button>
-            <div className="settings-wrapper" ref={settingsMenuRef}>
-              <button
-                className="control-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowSettings(!showSettings);
-                }}
-              >
-                <FaEllipsisH />
-              </button>
-              {showSettings && (
-                <div className="settings-menu">
-                  <div className="settings-option">
-                    Calidad: {selectedResolution}
-                  </div>
-                  {videoData.resolutions.map((res) => (
-                    <div
-                      key={res}
-                      className="quality-item"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleQualityChange(res);
-                      }}
-                    >
-                      {res}
-                    </div>
-                  ))}
+            {showSettings && (
+              <div className="settings-menu">
+                <div className="settings-option">
+                  Calidad: {selectedResolution}
+                </div>
+                {videoData.resolutions.map((res) => (
                   <div
+                    key={res}
                     className="quality-item"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleQualityChange("Auto");
+                      handleQualityChange(res);
                     }}
                   >
-                    Auto
+                    {res}
                   </div>
+                ))}
+                <div
+                  className="quality-item"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleQualityChange("Auto");
+                  }}
+                >
+                  Auto
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

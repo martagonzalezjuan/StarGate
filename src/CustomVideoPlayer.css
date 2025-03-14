@@ -20,7 +20,7 @@
     left: 0;
     right: 0;
     background-color: rgba(15, 15, 15, 0.9);
-    color: #fff;
+    color: #ffff;
     font-size: 14px;
     transition: opacity 0.3s ease;
     z-index: 10;
@@ -37,21 +37,33 @@
   /* Barra de progreso y buffer */
   .progress-container {
     position: relative;
-    height: 6px;
-    background-color: rgba(255, 255, 255, 0.3);
+    width: 100%;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.2);
     cursor: pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
   
   .buffer-bar {
     position: absolute;
+    top: 0;
+    left: 0;
     height: 100%;
-    background-color: rgba(200, 200, 200, 0.5);
+    background: rgba(255, 255, 255, 0.4);
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
   
   .progress-bar {
     position: absolute;
+    top: 0;
+    left: 0;
     height: 100%;
-    background-color: rgb(43, 0, 255);
+    background: #0404f7;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
   
   /* Marcadores de capítulo */
@@ -206,4 +218,3 @@
     z-index: 15;
     transition: opacity 0.3s ease;
   }
-  
