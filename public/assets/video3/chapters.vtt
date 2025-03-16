@@ -1,0 +1,16 @@
+WEBVTT
+
+00:00.000 --> 02:30.000
+{"label": "Introduction to Jupiter", "image": "", "text": "Overview of Jupiter's significance and historical observations."}
+
+02:30.001 --> 05:30.000
+{"label": "Jupiter's Atmosphere", "image": "hubble_nudo.jpg", "text": "Exploration of Jupiter's gaseous composition and atmospheric dynamics."}
+
+05:31.001 --> 09:00.000
+{"label": "The Great Red Spot", "image": "hubble_desenlace.jpg", "text": "Discussion of the Great Red Spot and its unique characteristics."}
+
+09:00.001 --> 12:30.000
+{"label": "Jupiter's interior", "image": "hubble_desenlace.jpg", "text": "Insights into Jupiter's internal structure and heat emission."}
+
+12:30.001 --> 14:01.000
+{"label": "Jupiter's Role in the Solar System", "image": "hubble_desenlace.jpg", "text": "Jupiter's impact on comets and its significance in the solar system."}

@@ -1,0 +1,11 @@
+WEBVTT
+
+00:00.000 --> 03:00.000
+{"label": "Introduction to Mars Exploration", "image": "", "text": "An overview of Mars and the rovers exploring its surface."}
+
+03:00.001 --> 06:00.000
+{"label": "The Rovers' Journey", "image": "hubble_nudo.jpg", "text": "Details on the missions of Spirit, Opportunity, Curiosity, and Perseverance."}
+
+06:00.001 --> 09:06.000
+{"label": "Reflections on Space Exploration", "image": "hubble_desenlace.jpg", "text": "A philosophical reflection on humanity's journey into space."}
+
