@@ -261,6 +261,69 @@ video source {
   video source[src*='1080p'] {
     display: none;
   }
+
+  .controls-row {
+    padding: 4px 6px;
+  }
+
+  .control-btn {
+    font-size: 1rem;
+    min-width: 28px;
+    padding: 3px;
+    margin-right: 4px;
+  }
+
+  .time-text {
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .controls-right {
+    gap: 4px;
+  }
+
+  .settings-menu {
+    right: 0;
+    left: auto;
+    transform: none;
+    bottom: 100%;
+    min-width: 100px;
+  }
+
+  .cc-menu {
+    bottom: 100%;
+    min-width: 80px;
+  }
+
+  .cc-wrapper {
+    margin: 0 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .controls-row {
+    padding: 4px;
+  }
+
+  .control-btn {
+    font-size: 0.9rem;
+    min-width: 24px;
+    padding: 2px;
+    margin-right: 2px;
+  }
+
+  .time-text {
+    font-size: 0.75rem;
+  }
+
+  .settings-menu, .cc-menu {
+    padding: 4px;
+  }
+
+  .quality-item, .cc-item {
+    padding: 3px;
+    font-size: 0.9rem;
+  }
 }
 
 /* Dispositivos medianos */
