@@ -298,8 +298,39 @@ video source {
   .cc-wrapper {
     margin: 0 4px;
   }
+
+  /* Adjust progress bar position and size */
+  .progress-container {
+    bottom: 35px;  /* Reduced from 50px */
+    height: 2px;   /* Thinner by default on mobile */
+  }
+
+  /* Smaller hover effect for progress bar */
+  .video-container:hover .progress-container:hover {
+    height: 4px;
+  }
+
+  /* Smaller chapter markers for mobile */
+  .chapter-marker {
+    width: 8px;
+    height: 8px;
+  }
+
+  /* Adjust chapter marker tooltip */
+  .chapter-marker:hover::after {
+    bottom: 120%;
+    font-size: 0.7rem;
+    padding: 3px 4px;
+  }
+
+  /* Make controls bar thinner */
+  .controls-row {
+    padding: 12px 8px 8px;  /* Reduced top padding */
+    background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.8) 40%);
+  }
 }
 
+/* Even smaller screens */
 @media (max-width: 480px) {
   .controls-row {
     padding: 4px;
@@ -323,6 +354,20 @@ video source {
   .quality-item, .cc-item {
     padding: 3px;
     font-size: 0.9rem;
+  }
+
+  .progress-container {
+    bottom: 32px;
+  }
+
+  .chapter-marker {
+    width: 6px;
+    height: 6px;
+  }
+
+  /* Further reduce controls height */
+  .controls-row {
+    padding: 10px 6px 6px;
   }
 }
 
