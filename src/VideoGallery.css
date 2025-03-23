@@ -102,6 +102,10 @@
   border-radius: 4px;
   display: block;
   margin-bottom: 5px;
+  background-color: #000; /* Add black background while loading */
+  object-fit: cover;
+  aspect-ratio: 16/9; /* Maintain aspect ratio */
+  -webkit-touch-callout: none; /* Disable touch menu on iOS */
 }
 
 .slider-item p {

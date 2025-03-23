@@ -56,7 +56,12 @@ function VideoGallery({ videos }) {
               }`}
               onClick={() => handleVideoSelect(index)}
             >
-              <video muted>
+              <video
+                muted
+                playsInline
+                preload="metadata"
+                poster={`${process.env.PUBLIC_URL}/assets/video${video.id}/thumbnail.webp`} // Add thumbnails as fallback
+              >
                 <source
                   src={`${process.env.PUBLIC_URL}/assets/video${video.id}/video${video.id}_720p.mp4`}
                   type="video/mp4"
