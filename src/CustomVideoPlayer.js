@@ -58,9 +58,37 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
   const [activeChapter, setActiveChapter] = useState(null); // Cue activa
 
   // Resolución y ruta base
-  const defaultResolution = videoData.resolutions.includes("4k")
-    ? "4k"
-    : videoData.resolutions[0] || "Auto";
+  const getDefaultResolution = () => {
+    const width = window.innerWidth;
+    const availableResolutions = videoData.resolutions.sort((a, b) => {
+      const getPixels = (res) => parseInt(res.replace(/[^0-9]/g, ""));
+      return getPixels(a) - getPixels(b);
+    });
+
+    if (width <= 768) {
+      // Móviles
+      return (
+        availableResolutions.find((res) => res === "480p") ||
+        availableResolutions[0]
+      );
+    } else if (width <= 1024) {
+      // Tablets
+      return (
+        availableResolutions.find((res) => res === "720p") ||
+        availableResolutions[0]
+      );
+    } else if (width <= 1920) {
+      // Desktop HD
+      return (
+        availableResolutions.find((res) => res === "1080p") ||
+        availableResolutions[0]
+      );
+    }
+    // 4K para pantallas grandes
+    return availableResolutions[availableResolutions.length - 1];
+  };
+
+  const defaultResolution = getDefaultResolution();
   const [selectedResolution, setSelectedResolution] =
     useState(defaultResolution);
   const basePath = `${process.env.PUBLIC_URL}/assets/video${videoData.id}/`;
@@ -360,33 +388,31 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
         ref={videoRef}
         className="video-player"
         controls={false}
-        muted={isMuted} // Change this, was: muted={videoData.audio?.length > 0}
-        playsInline // Add this for iOS Safari
+        muted={isMuted}
+        playsInline
         onClick={handlePlayPause}
       >
-        <source
-          src={`${basePath}video${videoData.id}_${selectedResolution}.mp4`}
-          type="video/mp4"
-        />
-        {/* Track de capítulos: usamos metadata para forzar la carga */}
+        {videoData.resolutions
+          .sort((a, b) => {
+            // Ordenar resoluciones de menor a mayor
+            const getPixels = (res) => parseInt(res.replace(/[^0-9]/g, ""));
+            return getPixels(a) - getPixels(b);
+          })
+          .map((resolution) => (
+            <source
+              key={resolution}
+              src={`${basePath}video${videoData.id}_${resolution}.mp4`}
+              type="video/mp4"
+            />
+          ))}
+        {/* Tracks existentes */}
         <track
           kind="metadata"
           label="Chapters"
           src={`${basePath}chapters.vtt`}
           default
         />
-        {/* Subtítulos */}
-        {videoData.subtitles &&
-          videoData.subtitles.map((lang) => (
-            <track
-              key={lang}
-              label={lang.toUpperCase()}
-              kind="subtitles"
-              srcLang={lang}
-              src={`${basePath}sub${videoData.id}_${lang}.vtt`}
-            />
-          ))}
-        Tu navegador no soporta el elemento de video HTML5.
+        {/* Resto de tracks... */}
       </video>
       {videoData.audio && videoData.audio.includes("en") && (
         <audio

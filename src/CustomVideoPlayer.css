@@ -249,3 +249,23 @@
   z-index: 15;
   transition: opacity 0.3s ease;
 }
+
+/* Calidad por defecto para móviles */
+video source {
+  src: attr(src, url);
+}
+
+/* Tablets y dispositivos pequeños */
+@media (max-width: 768px) {
+  video source[src*='4k'],
+  video source[src*='1080p'] {
+    display: none;
+  }
+}
+
+/* Dispositivos medianos */
+@media (min-width: 769px) and (max-width: 1024px) {
+  video source[src*='4k'] {
+    display: none;
+  }
+}
