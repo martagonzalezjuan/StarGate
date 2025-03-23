@@ -257,11 +257,32 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
 
   const handleFullscreen = () => {
     if (!containerRef.current) return;
-    if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen?.();
+
+    if (
+      !document.fullscreenElement &&
+      !document.webkitFullscreenElement &&
+      !document.mozFullScreenElement
+    ) {
+      if (containerRef.current.requestFullscreen) {
+        containerRef.current.requestFullscreen();
+      } else if (containerRef.current.webkitRequestFullscreen) {
+        // Safari
+        containerRef.current.webkitRequestFullscreen();
+      } else if (containerRef.current.mozRequestFullScreen) {
+        // Firefox
+        containerRef.current.mozRequestFullScreen();
+      }
       setIsFullscreen(true);
     } else {
-      document.exitFullscreen?.();
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        // Safari
+        document.webkitExitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+        // Firefox
+        document.mozCancelFullScreen();
+      }
       setIsFullscreen(false);
     }
   };
