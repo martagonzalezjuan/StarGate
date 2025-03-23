@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import CustomVideoPlayer from "./CustomVideoPlayer";
+import { FaPlus } from "react-icons/fa";
 import "./VideoGallery.css";
 
 function VideoGallery({ videos }) {
@@ -70,6 +71,13 @@ function VideoGallery({ videos }) {
               <p>{video.title}</p>
             </div>
           ))}
+          {/* upload placeholder */}
+          <div className="slider-item upload-placeholder">
+            <div className="upload-content">
+              <FaPlus size={24} />
+              <p>Upload Video</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

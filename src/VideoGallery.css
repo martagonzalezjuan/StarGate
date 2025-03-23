@@ -113,6 +113,39 @@
   text-align: center;
 }
 
+/* Upload placeholder styles */
+.upload-placeholder {
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.upload-placeholder:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.upload-content {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16/9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #fff;
+}
+
+.upload-content svg {
+  opacity: 0.8;
+}
+
+.upload-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
 /* Responsividad: en móviles */
 @media (max-width: 768px) {
   .video-display {
