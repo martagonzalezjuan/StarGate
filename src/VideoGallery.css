@@ -13,6 +13,7 @@
   gap: 20px;
   width: 80%;
   margin: 0 auto 20px;
+  min-height: 80vh;
 }
 
 /* Columna izquierda: reproductor y panel de capítulo */
@@ -20,6 +21,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 500px;
 }
 
 .video-selected {
@@ -28,6 +30,13 @@
   padding: 20px;
   box-sizing: border-box;
   overflow: hidden;
+  /* Add transition */
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.video-selected.fade-out {
+  opacity: 0;
 }
 
 .video-selected h3 {
@@ -41,10 +50,19 @@
   border-radius: 8px;
   margin-top: 20px;
   padding: 20px;
-  animation: fadeIn 0.4s ease forwards;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
   display: flex;
   gap: 2rem;
   align-items: flex-start;
+}
+
+.chapter-content.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .chapter-content img {
@@ -60,16 +78,7 @@
   line-height: 1.5;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+
 
 /* Columna derecha: carrusel vertical */
 .video-slider {

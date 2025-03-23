@@ -6,15 +6,24 @@ import "./VideoGallery.css";
 function VideoGallery({ videos }) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [activeChapter, setActiveChapter] = useState(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const currentVideo =
     videos && videos.length > 0 ? videos[currentVideoIndex] : null;
 
-  const handleVideoSelect = (index) => {
-    if (index !== currentVideoIndex) {
-      setCurrentVideoIndex(index);
-      setActiveChapter(null);
-    }
+  const handleVideoSelect = async (index) => {
+    setIsTransitioning(true);
+
+    // Wait for fade out
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    setCurrentVideoIndex(index);
+    setActiveChapter(null);
+
+    // Remove transition class after new video loads
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 50);
   };
 
   const handleChapterChange = (chapter) => {
@@ -30,7 +39,9 @@ function VideoGallery({ videos }) {
       <h2>Explore</h2>
       <div className="video-display">
         <div className="video-column">
-          <div className="video-selected">
+          <div
+            className={`video-selected ${isTransitioning ? "fade-out" : ""}`}
+          >
             <CustomVideoPlayer
               key={currentVideo.id}
               videoData={currentVideo}
@@ -39,7 +50,9 @@ function VideoGallery({ videos }) {
             <h3>{currentVideo.title}</h3>
           </div>
           {activeChapter && (
-            <div className="chapter-content">
+            <div
+              className={`chapter-content ${activeChapter ? "visible" : ""}`}
+            >
               <img
                 src={`${process.env.PUBLIC_URL}/assets/video${currentVideo.id}/${activeChapter.image}`}
                 alt={activeChapter.label}

@@ -15,7 +15,7 @@ function App() {
   const videos = [
     {
       id: 1,
-      title: "Hubble",
+      title: "The Extraordinay Things Hubble Has Seen ",
       resolutions: ["4k", "1080p", "720p", "480p", "360p"],
       subtitles: ["en", "es", "fr"],
       audio: ["en"],
@@ -23,7 +23,7 @@ function App() {
     },
     {
       id: 2,
-      title: "Marte",
+      title: "Mars: The Red Planet",
       resolutions: ["4k", "1080p", "720p", "480p", "360p"],
       subtitles: ["en", "es", "fr"],
       audio: ["en"],
@@ -31,7 +31,7 @@ function App() {
     },
     {
       id: 3,
-      title: "Jupiter",
+      title: "Jupiter: The Gas Giant",
       resolutions: ["4k", "1080p", "720p", "480p", "360p"],
       subtitles: ["en", "es", "fr"],
       audio: ["en"],
