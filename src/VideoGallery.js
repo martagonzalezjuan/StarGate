@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import CustomVideoPlayer from "./CustomVideoPlayer";
+import CameraPermission from "./components/CameraPermission";
 import { FaPlus } from "react-icons/fa";
 import "./VideoGallery.css";
 
@@ -38,59 +39,63 @@ function VideoGallery({ videos }) {
     <div className="video-gallery">
       <h2>Explore</h2>
       <div className="video-display">
-        <div className="video-column">
-          <div
-            className={`video-selected ${isTransitioning ? "fade-out" : ""}`}
-          >
-            <CustomVideoPlayer
-              key={currentVideo.id}
-              videoData={currentVideo}
-              onChapterChange={handleChapterChange}
-            />
-            <h3>{currentVideo.title}</h3>
-          </div>
-          {activeChapter && (
-            <div
-              className={`chapter-content ${activeChapter ? "visible" : ""}`}
-            >
-              <img
-                src={`${process.env.PUBLIC_URL}/assets/video${currentVideo.id}/${activeChapter.image}`}
-                alt={activeChapter.label}
-              />
-              <p>{activeChapter.text}</p>
-            </div>
-          )}
-        </div>
-        <div className="video-slider">
-          {videos.map((video, index) => (
-            <div
-              key={video.id}
-              className={`slider-item ${
-                index === currentVideoIndex ? "active" : ""
-              }`}
-              onClick={() => handleVideoSelect(index)}
-            >
-              <video
-                muted
-                playsInline
-                preload="metadata"
-                poster={`${process.env.PUBLIC_URL}/assets/video${video.id}/thumbnail.webp`} // Add thumbnails as fallback
+        <div className="content-section">
+          <div className="video-slider">
+            {videos.map((video, index) => (
+              <div
+                key={video.id}
+                className={`slider-item ${
+                  index === currentVideoIndex ? "active" : ""
+                }`}
+                onClick={() => handleVideoSelect(index)}
               >
-                <source
-                  src={`${process.env.PUBLIC_URL}/assets/video${video.id}/video${video.id}_720p.mp4`}
-                  type="video/mp4"
-                />
-              </video>
-              <p>{video.title}</p>
-            </div>
-          ))}
-          {/* upload placeholder */}
-          <div className="slider-item upload-placeholder">
-            <div className="upload-content">
-              <FaPlus size={24} />
-              <p>Upload Video</p>
+                <video
+                  muted
+                  playsInline
+                  preload="metadata"
+                  poster={`${process.env.PUBLIC_URL}/assets/video${video.id}/thumbnail.webp`} // Add thumbnails as fallback
+                >
+                  <source
+                    src={`${process.env.PUBLIC_URL}/assets/video${video.id}/video${video.id}_720p.mp4`}
+                    type="video/mp4"
+                  />
+                </video>
+                <p>{video.title}</p>
+              </div>
+            ))}
+            <div className="slider-item upload-placeholder">
+              <div className="upload-content">
+                <FaPlus size={24} />
+                <p>Upload Video</p>
+              </div>
             </div>
           </div>
+          <div className="video-column">
+            <div
+              className={`video-selected ${isTransitioning ? "fade-out" : ""}`}
+            >
+              <CustomVideoPlayer
+                key={currentVideo.id}
+                videoData={currentVideo}
+                onChapterChange={handleChapterChange}
+              />
+              <h3>{currentVideo.title}</h3>
+            </div>
+            {activeChapter && (
+              <div
+                className={`chapter-content ${activeChapter ? "visible" : ""}`}
+              >
+                <img
+                  src={`${process.env.PUBLIC_URL}/assets/video${currentVideo.id}/${activeChapter.image}`}
+                  alt={activeChapter.label}
+                />
+                <p>{activeChapter.text}</p>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="camera-section">
+          <CameraPermission />
         </div>
       </div>
     </div>

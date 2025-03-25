@@ -1,0 +1,29 @@
+.camera-permission {
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.permission-request {
+  text-align: center;
+  color: #fff;
+}
+
+.permission-request button {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.permission-request button:hover {
+  background: #0056b3;
+}

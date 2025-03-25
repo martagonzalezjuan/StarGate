@@ -5,7 +5,7 @@ import Logo from "./logo.png"; // Asegúrate de que el archivo esté en la ruta 
 
 function App() {
   const [apodData, setApodData] = useState(null);
-  const API_KEY = "qvTugfpNj9qF2lpjhjW33mcjZclHYKpfRLLHCZgL";
+  const API_KEY = process.env.REACT_APP_NASA_API_KEY;
 
   // Refs para las secciones
   const homeRef = useRef(null);

@@ -9,11 +9,38 @@
 
 .video-display {
   display: flex;
-  flex-direction: row;
   gap: 20px;
-  width: 80%;
+  width: 90%;
   margin: 0 auto 20px;
   min-height: 80vh;
+}
+
+.content-section {
+  flex: 2;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.camera-section {
+  flex: 1;
+  min-width: 300px;
+  max-width: 400px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .video-display {
+    flex-direction: column;
+  }
+
+  .camera-section {
+    max-width: 100%;
+  }
+
+  .content-section {
+    flex-direction: column-reverse;
+  }
 }
 
 /* Columna izquierda: reproductor y panel de capítulo */
