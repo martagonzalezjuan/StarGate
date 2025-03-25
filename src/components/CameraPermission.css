@@ -27,3 +27,23 @@
 .permission-request button:hover {
   background: #0056b3;
 }
+
+.emotion-detector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.emotion-status {
+  margin-top: 10px;
+  height: 40px; /* Ajusta según sea necesario */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emotion-result {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #fff;
+}

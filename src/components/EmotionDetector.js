@@ -1,94 +1,116 @@
-import React, { useRef, useEffect, useState } from "react";
-import * as faceapi from "face-api.js";
+import React, { useRef, useState, useEffect, useCallback } from "react";
+import { HfInference } from "@huggingface/inference";
 
-function EmotionDetector() {
+const HF_TOKEN = process.env.REACT_APP_HF_TOKEN;
+const inference = new HfInference(HF_TOKEN);
+
+// Cambiamos al modelo justin-cv/ferplus
+const MODEL_ID = "justin-cv/ferplus";
+
+const emotionTranslations = {
+  neutral: "neutral",
+  happiness: "feliz",
+  surprise: "sorprendido",
+  sadness: "triste",
+  anger: "enfadado",
+  disgust: "disgustado",
+  fear: "miedo",
+  contempt: "desprecio",
+};
+
+function EmotionDetector({ stream }) {
   const videoRef = useRef();
-  const canvasRef = useRef();
   const [emotion, setEmotion] = useState("");
-  const [isModelLoaded, setIsModelLoaded] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
 
   useEffect(() => {
-    const loadModels = async () => {
-      try {
-        // Make sure we're using the correct path
-        const MODEL_URL = `${process.env.PUBLIC_URL}/models`;
-
-        console.log("Loading models from:", MODEL_URL);
-
-        await Promise.all([
-          faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-          faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
-        ]);
-
-        console.log("Models loaded successfully");
-        setIsModelLoaded(true);
-      } catch (error) {
-        console.error("Error loading models:", error);
-      }
-    };
-
-    loadModels();
-  }, []);
-
-  useEffect(() => {
-    if (isModelLoaded) {
-      startVideo();
-    }
-  }, [isModelLoaded]);
-
-  const startVideo = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    if (stream && videoRef.current) {
       videoRef.current.srcObject = stream;
-    } catch (err) {
-      console.error("Error accessing camera:", err);
     }
-  };
+  }, [stream]);
 
-  const handlePlay = () => {
-    const interval = setInterval(async () => {
-      if (videoRef.current && isModelLoaded) {
-        try {
-          const detections = await faceapi
-            .detectAllFaces(
-              videoRef.current,
-              new faceapi.TinyFaceDetectorOptions()
-            )
-            .withFaceExpressions();
+  const analyzeEmotion = useCallback(async () => {
+    if (!videoRef.current || analyzing) return;
 
-          if (detections && detections[0]) {
-            const emotions = detections[0].expressions;
-            const dominantEmotion = Object.keys(emotions).reduce((a, b) =>
-              emotions[a] > emotions[b] ? a : b
-            );
-            setEmotion(dominantEmotion);
-          }
-        } catch (error) {
-          console.error("Error detecting emotions:", error);
-          clearInterval(interval);
+    try {
+      setAnalyzing(true);
+      console.log("Analizando emoción...");
+
+      // Capturar frame del video
+      const canvas = document.createElement("canvas");
+      canvas.width = 224; // Tamaño requerido por el modelo
+      canvas.height = 224;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(videoRef.current, 0, 0, 224, 224);
+
+      // Convertir a blob
+      const blob = await new Promise((resolve) => {
+        canvas.toBlob(resolve, "image/jpeg", 0.8);
+      });
+
+      // Convertir blob a base64
+      const reader = new FileReader();
+      const base64Image = await new Promise((resolve) => {
+        reader.onloadend = () => resolve(reader.result.split(",")[1]);
+        reader.readAsDataURL(blob);
+      });
+
+      // Enviar a Hugging Face
+      const response = await fetch(
+        `https://api-inference.huggingface.co/models/${MODEL_ID}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${HF_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            inputs: base64Image,
+          }),
         }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    }, 1000);
 
+      const data = await response.json();
+      console.log("Respuesta:", data);
+
+      if (data && data[0]) {
+        const detectedEmotion = data[0].label.toLowerCase();
+        console.log("Emoción detectada:", detectedEmotion);
+        setEmotion(emotionTranslations[detectedEmotion] || detectedEmotion);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setAnalyzing(false);
+    }
+  }, [analyzing]);
+
+  useEffect(() => {
+    const interval = setInterval(analyzeEmotion, 3000);
     return () => clearInterval(interval);
-  };
-
-  if (!isModelLoaded) {
-    return <div>Loading models...</div>;
-  }
+  }, [analyzeEmotion]);
 
   return (
-    <div>
+    <div className="emotion-detector">
       <video
         ref={videoRef}
         autoPlay
         playsInline
         muted
-        onPlay={handlePlay}
         style={{ width: "100%", maxWidth: "600px" }}
       />
-      <canvas ref={canvasRef} />
-      {emotion && <p>Emoción detectada: {emotion}</p>}
+      <div className="emotion-status">
+        {analyzing ? <p>Analizando...</p> : <p>&nbsp;</p>}
+        {emotion && (
+          <div className="emotion-result">
+            <p>Emoción detectada: {emotion}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
