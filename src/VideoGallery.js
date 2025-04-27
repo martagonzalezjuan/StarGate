@@ -8,6 +8,8 @@ function VideoGallery({ videos }) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [activeChapter, setActiveChapter] = useState(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null); // Estado para el archivo seleccionado
 
   const currentVideo =
     videos && videos.length > 0 ? videos[currentVideoIndex] : null;
@@ -29,6 +31,27 @@ function VideoGallery({ videos }) {
 
   const handleChapterChange = (chapter) => {
     setActiveChapter(chapter);
+  };
+
+  const handleUploadVideo = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file); // Guardar el archivo en el estado
+      console.log("Archivo seleccionado:", file.name);
+    }
+  };
+
+  const handleUpload = () => {
+    if (selectedFile) {
+      console.log("Subiendo archivo:", selectedFile.name);
+      // Aquí puedes agregar la lógica para subir el archivo a un servidor
+    } else {
+      console.log("No se ha seleccionado ningún archivo.");
+    }
   };
 
   if (!currentVideo) {
@@ -63,7 +86,10 @@ function VideoGallery({ videos }) {
                 <p>{video.title}</p>
               </div>
             ))}
-            <div className="slider-item upload-placeholder">
+            <div
+              className="slider-item upload-placeholder"
+              onClick={handleUploadVideo}
+            >
               <div className="upload-content">
                 <FaPlus size={24} />
                 <p>Upload Video</p>
@@ -98,6 +124,47 @@ function VideoGallery({ videos }) {
           <CameraPermission />
         </div>
       </div>
+      {isModalOpen && (
+        <div
+          className="upload-modal-backdrop"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div
+            className="upload-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="upload-modal-close"
+              onClick={() => setIsModalOpen(false)}
+            >
+              &times;
+            </button>
+
+            <h2 className="upload-modal-title">Subir video</h2>
+            <p className="upload-modal-desc">
+              Selecciona un archivo de video desde tu dispositivo
+            </p>
+
+            <input
+              type="file"
+              className="upload-modal-input"
+              onChange={handleFileChange} // Manejar el archivo seleccionado
+            />
+
+            <div className="upload-modal-buttons">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="btn-cancel"
+              >
+                Cancelar
+              </button>
+              <button onClick={handleUpload} className="btn-upload">
+                Subir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
