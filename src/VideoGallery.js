@@ -8,6 +8,7 @@ function VideoGallery({ videos }) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [activeChapter, setActiveChapter] = useState(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [emotion, setEmotion] = useState(""); // Estado para la emoción detectada
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null); // Estado para el archivo seleccionado
 
@@ -125,6 +126,7 @@ function VideoGallery({ videos }) {
                 key={currentVideo.id}
                 videoData={currentVideo}
                 onChapterChange={handleChapterChange}
+                emotion={emotion}
               />
               <h3>{currentVideo.title}</h3>
             </div>
@@ -142,7 +144,7 @@ function VideoGallery({ videos }) {
           </div>
         </div>
         <div className="camera-section">
-          <CameraPermission />
+          <CameraPermission setEmotion={setEmotion} />
         </div>
       </div>
       {isModalOpen && (

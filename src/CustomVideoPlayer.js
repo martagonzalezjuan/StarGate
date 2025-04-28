@@ -1,4 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
+import { Canvas } from "@react-three/fiber"; // Importar Canvas
+import AnimatedModel from "./components/AnimatedModel"; // Importar AnimatedModel
+import * as THREE from "three"; // Importar THREE
 import {
   FaPlay,
   FaPause,
@@ -26,7 +29,9 @@ const parseTime = (timeStr) => {
   return 0;
 };
 
-function CustomVideoPlayer({ videoData, onChapterChange }) {
+function CustomVideoPlayer({ videoData, onChapterChange, emotion }) {
+  console.log("Emoción en CustomVideoPlayer:", emotion); // Para debuggear
+
   const videoRef = useRef(null);
   const audioRef = useRef(null);
   const containerRef = useRef(null);
@@ -403,7 +408,9 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
       ref={containerRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      style={{ position: "relative" }}
     >
+      {/* Video Player */}
       <video
         key={`${videoData.id}-${selectedResolution}`}
         ref={videoRef}
@@ -415,7 +422,6 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
       >
         {videoData.resolutions
           .sort((a, b) => {
-            // Ordenar resoluciones de menor a mayor
             const getPixels = (res) => parseInt(res.replace(/[^0-9]/g, ""));
             return getPixels(a) - getPixels(b);
           })
@@ -426,15 +432,32 @@ function CustomVideoPlayer({ videoData, onChapterChange }) {
               type="video/mp4"
             />
           ))}
-        {/* Tracks existentes */}
         <track
           kind="metadata"
           label="Chapters"
           src={`${basePath}chapters.vtt`}
           default
         />
-        {/* Resto de tracks... */}
       </video>
+
+      {/* Canvas para el Modelo 3D - MOVIDO FUERA DEL VIDEO */}
+      {emotion === "happy" && (
+        <Canvas
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            pointerEvents: "none",
+            zIndex: 10, // Asegura que esté por encima del video
+          }}
+        >
+          <ambientLight intensity={1} />
+          <AnimatedModel emotion={emotion} />
+        </Canvas>
+      )}
+
       {videoData.audio && videoData.audio.includes("en") && (
         <audio
           ref={audioRef}

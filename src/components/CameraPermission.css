@@ -27,3 +27,17 @@
 .permission-request button:hover {
   background: #0056b3;
 }
+
+.emotion-indicator {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.emotion-indicator p {
+  margin: 0;
+  font-size: 14px;
+}

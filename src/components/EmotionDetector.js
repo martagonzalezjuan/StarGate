@@ -1,49 +1,31 @@
 import React, { useRef, useEffect, useState } from "react";
 import * as faceapi from "face-api.js";
 
-function EmotionDetector() {
+function EmotionDetector({ stream, setEmotion }) {
   const videoRef = useRef();
-  const canvasRef = useRef();
-  const [emotion, setEmotion] = useState("");
   const [isModelLoaded, setIsModelLoaded] = useState(false);
 
   useEffect(() => {
     const loadModels = async () => {
       try {
-        // Make sure we're using the correct path
         const MODEL_URL = `${process.env.PUBLIC_URL}/models`;
-
-        console.log("Loading models from:", MODEL_URL);
-
         await Promise.all([
           faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
           faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
         ]);
-
-        console.log("Models loaded successfully");
         setIsModelLoaded(true);
       } catch (error) {
         console.error("Error loading models:", error);
       }
     };
-
     loadModels();
   }, []);
 
   useEffect(() => {
-    if (isModelLoaded) {
-      startVideo();
-    }
-  }, [isModelLoaded]);
-
-  const startVideo = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    if (stream && videoRef.current) {
       videoRef.current.srcObject = stream;
-    } catch (err) {
-      console.error("Error accessing camera:", err);
     }
-  };
+  }, [stream]);
 
   const handlePlay = () => {
     const interval = setInterval(async () => {
@@ -62,10 +44,10 @@ function EmotionDetector() {
               emotions[a] > emotions[b] ? a : b
             );
             setEmotion(dominantEmotion);
+            console.log("Emoción detectada:", dominantEmotion); // Para debuggear
           }
         } catch (error) {
           console.error("Error detecting emotions:", error);
-          clearInterval(interval);
         }
       }
     }, 1000);
@@ -73,12 +55,8 @@ function EmotionDetector() {
     return () => clearInterval(interval);
   };
 
-  if (!isModelLoaded) {
-    return <div>Loading models...</div>;
-  }
-
   return (
-    <div>
+    <div style={{ position: "relative" }}>
       <video
         ref={videoRef}
         autoPlay
@@ -87,8 +65,6 @@ function EmotionDetector() {
         onPlay={handlePlay}
         style={{ width: "100%", maxWidth: "600px" }}
       />
-      <canvas ref={canvasRef} />
-      {emotion && <p>Emoción detectada: {emotion}</p>}
     </div>
   );
 }
