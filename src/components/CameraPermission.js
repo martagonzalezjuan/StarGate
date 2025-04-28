@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import EmotionDetector from "./EmotionDetector";
 import "./CameraPermission.css";
 
-function CameraPermission({ onPermissionGranted }) {
+function CameraPermission({ setEmotion }) {
   const [hasPermission, setHasPermission] = useState(false);
   const [stream, setStream] = useState(null);
 
@@ -16,9 +16,6 @@ function CameraPermission({ onPermissionGranted }) {
       });
       setStream(mediaStream);
       setHasPermission(true);
-      if (onPermissionGranted) {
-        onPermissionGranted(true);
-      }
     } catch (error) {
       console.error("Error accessing camera:", error);
       setHasPermission(false);
@@ -34,7 +31,7 @@ function CameraPermission({ onPermissionGranted }) {
           <button onClick={requestCameraPermission}>Permitir Acceso</button>
         </div>
       ) : (
-        <EmotionDetector stream={stream} />
+        <EmotionDetector stream={stream} setEmotion={setEmotion} />
       )}
     </div>
   );
