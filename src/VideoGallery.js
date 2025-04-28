@@ -8,7 +8,7 @@ function VideoGallery({ videos }) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [activeChapter, setActiveChapter] = useState(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [emotion, setEmotion] = useState(""); // Estado para la emoción detectada
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null); // Estado para el archivo seleccionado
 
