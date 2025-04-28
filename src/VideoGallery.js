@@ -45,14 +45,35 @@ function VideoGallery({ videos }) {
     }
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (selectedFile) {
       console.log("Subiendo archivo:", selectedFile.name);
-      // Aquí puedes agregar la lógica para subir el archivo a un servidor
+  
+      const formData = new FormData();
+      formData.append('archivo', selectedFile);
+  
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData,
+        });
+  
+        if (response.ok) {
+          const result = await response.text();
+          console.log('Archivo subido correctamente:', result);
+          setIsModalOpen(false); // Cierra el modal si quieres
+          setSelectedFile(null); // Limpia el estado
+        } else {
+          console.error('Error al subir el archivo:', await response.text());
+        }
+      } catch (error) {
+        console.error('Error de red:', error);
+      }
     } else {
       console.log("No se ha seleccionado ningún archivo.");
     }
   };
+  
 
   if (!currentVideo) {
     return <div className="video-gallery">No hay videos disponibles.</div>;
@@ -148,6 +169,7 @@ function VideoGallery({ videos }) {
             <input
               type="file"
               className="upload-modal-input"
+              name="archivo"
               onChange={handleFileChange} // Manejar el archivo seleccionado
             />
 
