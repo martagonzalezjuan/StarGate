@@ -5,6 +5,12 @@ import "./CameraPermission.css";
 function CameraPermission({ setEmotion }) {
   const [hasPermission, setHasPermission] = useState(false);
   const [stream, setStream] = useState(null);
+  const [currentEmotion, setCurrentEmotion] = useState("");
+
+  const handleEmotionChange = (emotion) => {
+    setCurrentEmotion(emotion);
+    setEmotion(emotion);
+  };
 
   const requestCameraPermission = async () => {
     try {
@@ -31,7 +37,12 @@ function CameraPermission({ setEmotion }) {
           <button onClick={requestCameraPermission}>Permitir Acceso</button>
         </div>
       ) : (
-        <EmotionDetector stream={stream} setEmotion={setEmotion} />
+        <>
+          <EmotionDetector stream={stream} setEmotion={handleEmotionChange} />
+          <div className="emotion-indicator">
+            <p>Emoción detectada: {currentEmotion || "ninguna"}</p>
+          </div>
+        </>
       )}
     </div>
   );
