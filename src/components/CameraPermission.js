@@ -32,15 +32,15 @@ function CameraPermission({ setEmotion }) {
     <div className="camera-permission">
       {!hasPermission ? (
         <div className="permission-request">
-          <h3>Acceso a la Cámara</h3>
-          <p>Para detectar emociones, necesitamos acceso a tu cámara.</p>
-          <button onClick={requestCameraPermission}>Permitir Acceso</button>
+          <h3>Camera Permission</h3>
+          <p>To detect emotions, we need access to your camera.</p>
+          <button onClick={requestCameraPermission}>Allow Access</button>
         </div>
       ) : (
         <>
           <EmotionDetector stream={stream} setEmotion={handleEmotionChange} />
           <div className="emotion-indicator">
-            <p>Emoción detectada: {currentEmotion || "ninguna"}</p>
+            <p>Emotion detected: {currentEmotion || "ninguna"}</p>
           </div>
         </>
       )}
