@@ -12,7 +12,7 @@ function App() {
   const videosRef = useRef(null);
 
   // Videos disponibles en `assets/` con capítulos personalizados
-  const videos = [
+  const staticVideos = [
     {
       id: 1,
       title: "The Extraordinay Things Hubble Has Seen ",
@@ -38,7 +38,18 @@ function App() {
       chapters: [],
     },
   ];
+  const [videos, setVideos] = useState([]);
 
+  useEffect(() => {
+    fetch('/videos')
+      .then((res) => res.json())
+      .then((userVideos) => {
+        const combinedVideos = [...staticVideos, ...userVideos];
+        setVideos(combinedVideos);
+      })
+      .catch((err) => console.error("Error cargando videos:", err));
+  }, []);
+  
   // Función para hacer scroll a una sección
   const scrollToSection = (ref) => {
     ref.current?.scrollIntoView({ behavior: "smooth" });

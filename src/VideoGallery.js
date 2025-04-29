@@ -163,9 +163,9 @@ function VideoGallery({ videos }) {
               &times;
             </button>
 
-            <h2 className="upload-modal-title">Subir video</h2>
+            <h2 className="upload-modal-title">Upload video</h2>
             <p className="upload-modal-desc">
-              Selecciona un archivo de video desde tu dispositivo
+              Select a video file from your device
             </p>
 
             <input
@@ -180,10 +180,10 @@ function VideoGallery({ videos }) {
                 onClick={() => setIsModalOpen(false)}
                 className="btn-cancel"
               >
-                Cancelar
+                Cancel
               </button>
               <button onClick={handleUpload} className="btn-upload">
-                Subir
+                Upload
               </button>
             </div>
           </div>
