@@ -77,7 +77,7 @@ function VideoGallery({ videos }) {
   
 
   if (!currentVideo) {
-    return <div className="video-gallery">No hay videos disponibles.</div>;
+    return <div className="video-gallery">There's no available videos</div>;
   }
 
   return (
@@ -183,7 +183,7 @@ function VideoGallery({ videos }) {
                 Cancel
               </button>
               <button onClick={handleUpload} className="btn-upload">
-                Upload
+                submit
               </button>
             </div>
           </div>
