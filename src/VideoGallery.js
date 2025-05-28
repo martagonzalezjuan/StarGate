@@ -8,76 +8,44 @@ function VideoGallery({ videos }) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [activeChapter, setActiveChapter] = useState(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [emotion, setEmotion] = useState(""); // Estado para la emoción detectada
+  const [emotion, setEmotion] = useState(""); 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null); // Estado para el archivo seleccionado
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const currentVideo =
     videos && videos.length > 0 ? videos[currentVideoIndex] : null;
 
   const handleVideoSelect = async (index) => {
     setIsTransitioning(true);
-
-    // Wait for fade out
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
+    await new Promise((r) => setTimeout(r, 300));
     setCurrentVideoIndex(index);
     setActiveChapter(null);
-
-    // Remove transition class after new video loads
-    setTimeout(() => {
-      setIsTransitioning(false);
-    }, 50);
+    setTimeout(() => setIsTransitioning(false), 50);
   };
 
   const handleChapterChange = (chapter) => {
     setActiveChapter(chapter);
   };
 
-  const handleUploadVideo = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setSelectedFile(file); // Guardar el archivo en el estado
-      console.log("Archivo seleccionado:", file.name);
-    }
-  };
-
+  const handleUploadVideo = () => setIsModalOpen(true);
+  const handleFileChange = (e) => setSelectedFile(e.target.files[0] || null);
   const handleUpload = async () => {
-    if (selectedFile) {
-      console.log("Subiendo archivo:", selectedFile.name);
-  
-      const formData = new FormData();
-      formData.append('archivo', selectedFile);
-  
-      try {
-        const response = await fetch('/upload', {
-          method: 'POST',
-          body: formData,
-        });
-  
-        if (response.ok) {
-          const result = await response.text();
-          console.log('Archivo subido correctamente:', result);
-          setIsModalOpen(false); // Cierra el modal si quieres
-          setSelectedFile(null); // Limpia el estado
-        } else {
-          console.error('Error al subir el archivo:', await response.text());
-        }
-      } catch (error) {
-        console.error('Error de red:', error);
-      }
-    } else {
-      console.log("No se ha seleccionado ningún archivo.");
+    if (!selectedFile) return console.log("No hay archivo para subir");
+    const formData = new FormData();
+    formData.append("archivo", selectedFile);
+    try {
+      const res = await fetch("/upload", { method: "POST", body: formData });
+      if (!res.ok) throw new Error(await res.text());
+      console.log("Subido:", await res.text());
+      setIsModalOpen(false);
+      setSelectedFile(null);
+    } catch (err) {
+      console.error("Error upload:", err);
     }
   };
-  
 
   if (!currentVideo) {
-    return <div className="video-gallery">There's no available videos</div>;
+    return <div className="video-gallery">No hay videos disponibles</div>;
   }
 
   return (
@@ -85,26 +53,18 @@ function VideoGallery({ videos }) {
       <h2>Explore</h2>
       <div className="video-display">
         <div className="content-section">
+          {/* SLIDER DE MINIATURAS */}
           <div className="video-slider">
-            {videos.map((video, index) => (
+            {videos.map((video, idx) => (
               <div
                 key={video.id}
-                className={`slider-item ${
-                  index === currentVideoIndex ? "active" : ""
-                }`}
-                onClick={() => handleVideoSelect(index)}
+                className={`slider-item ${idx === currentVideoIndex ? "active" : ""}`}
+                onClick={() => handleVideoSelect(idx)}
               >
-                <video
-                  muted
-                  playsInline
-                  preload="metadata"
-                  poster={`${process.env.PUBLIC_URL}/assets/video${video.id}/thumbnail.webp`} // Add thumbnails as fallback
-                >
-                  <source
-                    src={`${process.env.PUBLIC_URL}/assets/video${video.id}/video${video.id}_720p.mp4`}
-                    type="video/mp4"
-                  />
-                </video>
+                <img
+                  src={`${process.env.PUBLIC_URL}/assets/video${video.id}/thumbnail.webp`}
+                  alt={video.title}
+                />
                 <p>{video.title}</p>
               </div>
             ))}
@@ -118,22 +78,26 @@ function VideoGallery({ videos }) {
               </div>
             </div>
           </div>
+
+          {/* PANEL PRINCIPAL */}
           <div className="video-column">
-            <div
-              className={`video-selected ${isTransitioning ? "fade-out" : ""}`}
-            >
+            <div className={`video-selected ${isTransitioning ? "fade-out" : ""}`}>
               <CustomVideoPlayer
                 key={currentVideo.id}
-                videoData={currentVideo}
+                videoData={{
+                  id: currentVideo.id,
+                  resolutions: currentVideo.resolutions,   // ej. ['360p','480p','720p','1080p','4k']
+                  subtitles: currentVideo.subtitles,       // ej. ['en','es','fr']
+                }}
                 onChapterChange={handleChapterChange}
                 emotion={emotion}
               />
               <h3>{currentVideo.title}</h3>
             </div>
+
+            {/* CONTENIDO DEL CAPÍTULO ACTIVO */}
             {activeChapter && (
-              <div
-                className={`chapter-content ${activeChapter ? "visible" : ""}`}
-              >
+              <div className={`chapter-content visible`}>
                 <img
                   src={`${process.env.PUBLIC_URL}/assets/video${currentVideo.id}/${activeChapter.image}`}
                   alt={activeChapter.label}
@@ -143,47 +107,28 @@ function VideoGallery({ videos }) {
             )}
           </div>
         </div>
+
+        {/* SECCIÓN CÁMARA/EMOCIÓN */}
         <div className="camera-section">
           <CameraPermission setEmotion={setEmotion} />
         </div>
       </div>
+
+      {/* MODAL DE SUBIDA */}
       {isModalOpen && (
-        <div
-          className="upload-modal-backdrop"
-          onClick={() => setIsModalOpen(false)}
-        >
-          <div
-            className="upload-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="upload-modal-close"
-              onClick={() => setIsModalOpen(false)}
-            >
+        <div className="upload-modal-backdrop" onClick={() => setIsModalOpen(false)}>
+          <div className="upload-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="upload-modal-close" onClick={() => setIsModalOpen(false)}>
               &times;
             </button>
-
-            <h2 className="upload-modal-title">Upload video</h2>
-            <p className="upload-modal-desc">
-              Select a video file from your device
-            </p>
-
-            <input
-              type="file"
-              className="upload-modal-input"
-              name="archivo"
-              onChange={handleFileChange} // Manejar el archivo seleccionado
-            />
-
+            <h2>Upload video</h2>
+            <input type="file" onChange={handleFileChange} />
             <div className="upload-modal-buttons">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="btn-cancel"
-              >
+              <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>
                 Cancel
               </button>
-              <button onClick={handleUpload} className="btn-upload">
-                submit
+              <button className="btn-upload" onClick={handleUpload}>
+                Submit
               </button>
             </div>
           </div>
