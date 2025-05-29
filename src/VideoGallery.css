@@ -1,5 +1,13 @@
+/* en tu App.css o donde tengas .app */
+.app {
+  width: 100%;       /* ocupa el 100 % de la ventana */
+  max-width: none;   /* anulamos cualquier max-width anterior */
+  margin: 0;         /* quitas el centrado automático */
+  padding: 0;        /* ajusta si tienes padding que no quieres */
+}
+
 .video-gallery {
-  max-width: 1200px;
+  width: 80%;
   margin: 0 auto;
   color: #fff;
   display: flex;
@@ -26,6 +34,8 @@
   flex: 1;
   min-width: 300px;
   max-width: 400px;
+  max-height: 300px;
+  bottom: 2; 
 }
 
 /* Responsive adjustments */
