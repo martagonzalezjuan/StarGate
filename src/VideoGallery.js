@@ -1,3 +1,4 @@
+// src/VideoGallery.js
 import React, { useState } from "react";
 import CustomVideoPlayer from "./CustomVideoPlayer";
 import CameraPermission from "./components/CameraPermission";
@@ -84,11 +85,7 @@ function VideoGallery({ videos }) {
             <div className={`video-selected ${isTransitioning ? "fade-out" : ""}`}>
               <CustomVideoPlayer
                 key={currentVideo.id}
-                videoData={{
-                  id: currentVideo.id,
-                  resolutions: currentVideo.resolutions,   // ej. ['360p','480p','720p','1080p','4k']
-                  subtitles: currentVideo.subtitles,       // ej. ['en','es','fr']
-                }}
+                videoData={currentVideo}           
                 onChapterChange={handleChapterChange}
                 emotion={emotion}
               />

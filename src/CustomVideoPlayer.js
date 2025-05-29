@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import Hls from "hls.js";
 import * as shaka from "shaka-player/dist/shaka-player.ui.js";
 import "shaka-player/dist/controls.css";
 import { Canvas } from "@react-three/fiber";
@@ -20,7 +21,11 @@ const parseTime = (timeStr) => {
   return 0;
 };
 
-export default function CustomVideoPlayer({ videoData, onChapterChange, emotion }) {
+export default function CustomVideoPlayer({
+  videoData,
+  onChapterChange,
+  emotion,
+}) {
   const videoRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -28,37 +33,55 @@ export default function CustomVideoPlayer({ videoData, onChapterChange, emotion 
   const [currentTime, setCurrentTime] = useState(0);
   const [activeChapter, setActiveChapter] = useState(null);
 
+  // 1) Detecta Theta por thetaId
+  const isTheta = Boolean(videoData.thetaId);
+  console.log("CustomVideoPlayer:", videoData.title, "isTheta =", isTheta);
+
+  // 2) Si es Theta, arma la URL; si no, basePath para DASH
+  const thetaUrl = isTheta
+    ? `https://media.thetavideoapi.com/org_2janifx47dr193cyz1cu29j2fdgm/` +
+      `srvacc_5fynasy80kiif1r4517bmmty2/${videoData.thetaId}/master.m3u8`
+    : null;
   const basePath = `/assets/video${videoData.id}/`;
 
-  // Inicializa Shaka Player y UI con attach() y orden correcto de parámetros
+  // ─── Shaka Player (DASH) ───
   useEffect(() => {
+    console.log("▶ Shaka useEffect fired, isTheta=", isTheta);
+    if (isTheta) {
+      console.log("⏭ Skipping Shaka because this is a Theta video");
+      return;
+    }
+
     const videoEl = videoRef.current;
-    const containerEl = containerRef.current;
-    if (!videoEl || !containerEl) return;
+    const uiContainer = containerRef.current;
+    if (!videoEl || !uiContainer) return;
 
     shaka.polyfill.installAll();
     if (!shaka.Player.isBrowserSupported()) {
-      console.error("Shaka Player no soportado en este navegador");
+      console.error("Shaka no soportado");
       return;
     }
 
     const player = new shaka.Player();
     player.attach(videoEl);
-    const ui = new shaka.ui.Overlay(player, containerEl, videoEl);
-    ui.getControls();
+    new shaka.ui.Overlay(player, uiContainer, videoEl).getControls();
 
-    const manifestUri = `${basePath}manifest.mpd`;
-    console.log("🚀 Shaka va a pedir este URI:", manifestUri);
     player
-      .load(manifestUri)
-      .then(() => console.log("Shaka: manifest cargado correctamente"))
-      .catch((e) => console.error("Shaka: error al cargar manifest.mpd", e));
+      .load(`${basePath}manifest.mpd`)
+      .then(() => console.log("✅ Shaka: DASH cargado"))
+      .catch((e) =>
+        console.error("💥 Shaka: error cargando manifest.mpd", e)
+      );
 
-    return () => player.destroy();
-  }, [basePath]);
+    return () => {
+      console.log("🔨 Shaka: destruyendo player");
+      player.destroy();
+    };
+  }, [basePath, isTheta]);
 
-  // Efecto para cargar y parsear capítulos desde VTT
+  // ─── Capítulos VTT (DASH) ───
   useEffect(() => {
+    if (isTheta) return;
     fetch(`${basePath}chapters.vtt`)
       .then((res) => res.text())
       .then((text) => {
@@ -74,9 +97,9 @@ export default function CustomVideoPlayer({ videoData, onChapterChange, emotion 
             const end = parseTime(m[2]);
             let data;
             try {
-              data = JSON.parse(lines[i + 1].trim());
+              data = JSON.parse(lines[i + 1]);
             } catch {
-              data = { label: lines[i + 1].trim() };
+              data = { label: lines[i + 1] };
             }
             cues.push({ ...data, start, end });
             i += 2;
@@ -86,38 +109,67 @@ export default function CustomVideoPlayer({ videoData, onChapterChange, emotion 
         }
         setChapterCues(cues);
       })
-      .catch((err) => console.error("Error cargando chapters.vtt", err));
-  }, [basePath]);
+      .catch((err) => console.error("💥 Error cargando VTT:", err));
+  }, [basePath, isTheta]);
 
-  // Efecto para actualizar currentTime
+  // ─── Timeupdate & capítulos (DASH) ───
   useEffect(() => {
+    if (isTheta) return;
     const videoEl = videoRef.current;
     if (!videoEl) return;
     const onTimeUpdate = () => setCurrentTime(videoEl.currentTime);
     videoEl.addEventListener("timeupdate", onTimeUpdate);
     return () => videoEl.removeEventListener("timeupdate", onTimeUpdate);
-  }, []);
+  }, [isTheta]);
 
-  // Efecto para detectar cambio de capítulo
   useEffect(() => {
-    if (!chapterCues.length) return;
+    if (isTheta || chapterCues.length === 0) return;
     const cue = chapterCues.find(
       (c) => currentTime >= c.start && currentTime < c.end
     );
     if (cue && cue.label !== activeChapter?.label) {
       setActiveChapter(cue);
-      // Llamada segura a onChapterChange
-      if (typeof onChapterChange === 'function') {
-        onChapterChange(cue);
-      }
+      onChapterChange?.(cue);
     }
-  }, [currentTime, chapterCues, activeChapter, onChapterChange]);
+  }, [currentTime, chapterCues, activeChapter, onChapterChange, isTheta]);
+  console.log("videoData en CustomVideoPlayer:", videoData);
+  // ─── HLS.js para Theta ───
+  useEffect(() => {
+    console.log("▶ HLS useEffect fired, isTheta=", isTheta);
+    if (!isTheta) return;
+
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+
+    const hls = new Hls();
+    hls.loadSource(thetaUrl);
+    hls.attachMedia(videoEl);
+    console.log("✅ Hls.js cargando", thetaUrl);
+
+    return () => {
+      console.log("🔨 Hls.js destruir");
+      hls.destroy();
+    };
+  }, [isTheta, thetaUrl]);
 
   return (
-    <div ref={containerRef} className="video-container" style={{ position: "relative" }}>
-      <video ref={videoRef} className="video-player" controls style={{ width: "100%" }} />
+    <div
+      ref={containerRef}
+      className="video-container"
+      style={{
+        position: "relative",
+        paddingBottom: isTheta ? "56.25%" : 0,
+        height: isTheta ? 0 : "auto",
+      }}
+    >
+      <video
+        ref={videoRef}
+        className="video-player"
+        controls
+        style={{ width: "100%" }}
+      />
 
-      {emotion === "happy" && (
+      {emotion === "happy" && !isTheta && (
         <Canvas
           style={{
             position: "absolute",
@@ -134,7 +186,9 @@ export default function CustomVideoPlayer({ videoData, onChapterChange, emotion 
         </Canvas>
       )}
 
-      {activeChapter && <div className="chapter-overlay">{activeChapter.label}</div>}
+      {activeChapter && !isTheta && (
+        <div className="chapter-overlay">{activeChapter.label}</div>
+      )}
     </div>
   );
 }

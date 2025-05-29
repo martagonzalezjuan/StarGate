@@ -107,46 +107,88 @@
 
 
 
-/* Columna derecha: carrusel vertical */
+/* VideoGallery.css (o donde tengas tu CSS) */
+
+/* —— Contenedor del slider —— */
 .video-slider {
-  width: 200px;
+  /* antes: width: 200px; */
+  flex: 0 0 200px;        /* ocupa hasta 200px */
+  max-width: 100%;        /* pero nunca más ancho que el padre */
   display: flex;
   flex-direction: column;
   gap: 10px;
   overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;     /* un poco de padding para el scroll */
 }
 
+/* —— Cada miniatura —— */
 .slider-item {
   background: #222;
-  padding: 10px;
+  padding: 6px;           /* reducimos un poco para que quepan mejor */
   border-radius: 8px;
   cursor: pointer;
   transition: transform 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+/* Zoom al pasar el ratón */
 .slider-item:hover {
   transform: scale(1.05);
 }
 
+/* Estado activo */
 .slider-item.active {
   border: 2px solid #007bff;
 }
 
+/* —— Imágenes y vídeos adaptables —— */
+.slider-item img,
 .slider-item video {
   width: 100%;
-  height: auto;
+  height: auto;           /* preserva la relación de aspecto */
   border-radius: 4px;
-  display: block;
-  margin-bottom: 5px;
-  background-color: #000; /* Add black background while loading */
   object-fit: cover;
-  aspect-ratio: 16/9; /* Maintain aspect ratio */
-  -webkit-touch-callout: none; /* Disable touch menu on iOS */
+  display: block;
+  aspect-ratio: 16/9;     /* si el navegador lo soporta */
+  margin-bottom: 5px;
 }
 
+/* —— Título de la miniatura —— */
 .slider-item p {
   margin: 0;
   text-align: center;
+  font-size: 0.9rem;
+  color: #eee;
+}
+
+/* —— Responsive: en pantallas estrechas, el slider horizontal —— */
+@media (max-width: 768px) {
+  .video-display {
+    flex-direction: column;
+  }
+
+  .video-slider {
+    flex-direction: row;
+    height: auto;
+    width: 100%;
+    overflow-y: hidden;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .slider-item {
+    flex: 0 0 auto;
+    width: 30%;           /* ajusta según cuántas quieras ver al tiempo */
+    padding: 4px;
+  }
+
+  .slider-item img,
+  .slider-item video {
+    margin-bottom: 4px;
+  }
 }
 
 /* Upload placeholder styles */
