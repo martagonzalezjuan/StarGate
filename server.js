@@ -23,7 +23,7 @@ app.get('/videos', (req, res) => {
   const dynamicVideos = folders
     .map(name => {
       const id = parseInt(name.replace('video', ''));
-      if (id <= 3) return null; // Ignora los vídeos estáticos
+      if (id <= 4) return null; // Ignora los vídeos estáticos
       return {
         id,
         title: `User Video ${id}`,

@@ -163,11 +163,12 @@ export default function CustomVideoPlayer({
       }}
     >
       <video
-        ref={videoRef}
-        className="video-player"
-        controls
-        style={{ width: "100%" }}
-      />
+       ref={videoRef}
+       className="video-player"
+       /* sólo nativos para Theta, en DASH los quitamos: */
+       controls={isTheta}
+       style={{ width: "100%" }}
+     />
 
       {emotion === "happy" && !isTheta && (
         <Canvas
@@ -186,9 +187,9 @@ export default function CustomVideoPlayer({
         </Canvas>
       )}
 
-      {activeChapter && !isTheta && (
+      {/* {activeChapter && !isTheta && (
         <div className="chapter-overlay">{activeChapter.label}</div>
-      )}
+      )} */}
     </div>
   );
 }
