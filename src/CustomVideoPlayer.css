@@ -314,3 +314,12 @@ body {
 .source-switch-btn:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+.video-player-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.source-switch-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

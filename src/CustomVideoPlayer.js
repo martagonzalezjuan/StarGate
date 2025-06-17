@@ -28,7 +28,9 @@ export default function CustomVideoPlayer({
 }) {
   const videoRef = useRef(null);
   const containerRef = useRef(null);
-  const [useTheta, setUseTheta] = useState(false); // New state for switch
+  const [useTheta, setUseTheta] = useState(false);
+  const [savedTime, setSavedTime] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [chapterCues, setChapterCues] = useState([]);
   const [currentTime, setCurrentTime] = useState(0);
@@ -46,25 +48,21 @@ export default function CustomVideoPlayer({
   const basePath = `/assets/video${videoData.id}/`;
 
   // Switch handler
-  const handleSourceSwitch = () => {
+  const handleSourceSwitch = async () => {
+    setIsLoading(true);
     const videoEl = videoRef.current;
     if (videoEl) {
-      const currentTime = videoEl.currentTime;
+      // Save current timestamp
+      setSavedTime(videoEl.currentTime);
+      // Switch source
       setUseTheta(!useTheta);
-      // Store current time to resume from same position
-      setTimeout(() => {
-        videoEl.currentTime = currentTime;
-      }, 100);
     }
   };
 
   // ─── Shaka Player (DASH) ───
   useEffect(() => {
     console.log("▶ Shaka useEffect fired, isTheta=", isTheta);
-    if (isTheta) {
-      console.log("⏭ Skipping Shaka because this is a Theta video");
-      return;
-    }
+    if (isTheta || !videoRef.current) return;
 
     const videoEl = videoRef.current;
     const uiContainer = containerRef.current;
@@ -82,14 +80,18 @@ export default function CustomVideoPlayer({
 
     player
       .load(`${basePath}manifest.mpd`)
-      .then(() => console.log("✅ Shaka: DASH cargado"))
+      .then(() => {
+        console.log("✅ Shaka: DASH cargado");
+        videoEl.currentTime = savedTime;
+        setIsLoading(false);
+      })
       .catch((e) => console.error("💥 Shaka: error cargando manifest.mpd", e));
 
     return () => {
       console.log("🔨 Shaka: destruyendo player");
       player.destroy();
     };
-  }, [basePath, isTheta]);
+  }, [basePath, isTheta, savedTime]);
 
   // ─── Capítulos VTT (DASH) ───
   useEffect(() => {
@@ -148,7 +150,7 @@ export default function CustomVideoPlayer({
   // ─── HLS.js para Theta ───
   useEffect(() => {
     console.log("▶ HLS useEffect fired, isTheta=", isTheta);
-    if (!isTheta) return;
+    if (!isTheta || !videoRef.current) return;
 
     const videoEl = videoRef.current;
     if (!videoEl) return;
@@ -158,57 +160,73 @@ export default function CustomVideoPlayer({
     hls.attachMedia(videoEl);
     console.log("✅ Hls.js cargando", thetaUrl);
 
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      videoEl.currentTime = savedTime;
+      setIsLoading(false);
+    });
+
     return () => {
       console.log("🔨 Hls.js destruir");
       hls.destroy();
     };
-  }, [isTheta, thetaUrl]);
+  }, [isTheta, thetaUrl, savedTime]);
 
   return (
-    <div
-      ref={containerRef}
-      className="video-container"
-      style={{
-        position: "relative",
-        paddingBottom: isTheta ? "56.25%" : 0,
-        height: isTheta ? 0 : "auto",
-      }}
-    >
+    <div className="video-player-wrapper">
       {/* Add source switch button */}
       {videoData.thetaId && (
-        <button className="source-switch-btn" onClick={handleSourceSwitch}>
-          Switch to {useTheta ? "DASH" : "Theta"}
+        <button
+          className="source-switch-btn"
+          onClick={handleSourceSwitch}
+          disabled={isLoading}
+        >
+          {isLoading
+            ? "Loading..."
+            : `Switch to ${useTheta ? "DASH" : "Theta"}`}
         </button>
       )}
 
-      <video
-        ref={videoRef}
-        className="video-player"
-        /* sólo nativos para Theta, en DASH los quitamos: */
-        controls={isTheta}
-        style={{ width: "100%" }}
-      />
+      <div
+        ref={containerRef}
+        className="video-container"
+        style={{
+          position: "relative",
+          paddingBottom: isTheta ? "56.25%" : 0,
+          height: isTheta ? 0 : "auto",
+          opacity: isLoading ? 0.5 : 1,
+          transition: "opacity 0.3s ease",
+        }}
+      >
+        <video
+          key={`${videoData.id}-${isTheta}`} // Force remount on source switch
+          ref={videoRef}
+          className="video-player"
+          /* sólo nativos para Theta, en DASH los quitamos: */
+          controls={isTheta}
+          style={{ width: "100%" }}
+        />
 
-      {emotion === "happy" && !isTheta && (
-        <Canvas
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            pointerEvents: "none",
-            zIndex: 10,
-          }}
-        >
-          <ambientLight intensity={1} />
-          <AnimatedModel emotion={emotion} />
-        </Canvas>
-      )}
+        {emotion === "happy" && !isTheta && (
+          <Canvas
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              pointerEvents: "none",
+              zIndex: 10,
+            }}
+          >
+            <ambientLight intensity={1} />
+            <AnimatedModel emotion={emotion} />
+          </Canvas>
+        )}
 
-      {/* {activeChapter && !isTheta && (
-        <div className="chapter-overlay">{activeChapter.label}</div>
-      )} */}
+        {/* {activeChapter && !isTheta && (
+          <div className="chapter-overlay">{activeChapter.label}</div>
+        )} */}
+      </div>
     </div>
   );
 }
