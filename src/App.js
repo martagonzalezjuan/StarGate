@@ -28,6 +28,8 @@ function App() {
       subtitles: ["en", "es"],
       audio: ["en"],
       chapters: [],
+      // Add Theta ID for switchable content
+      thetaId: "video_2yrjx95793zgf4sjdtnycf9b1t",
     },
     {
       id: 3,
@@ -37,13 +39,6 @@ function App() {
       audio: ["en"],
       chapters: [],
     },
-    // Y en App.js:
-{
-  id: 4,
-  title: "Theta Stream Example",
-  thetaId: "video_2yrjx95793zgf4sjdtnycf9b1t",
-  thumbnail: `${process.env.PUBLIC_URL}/assets/video4/thumbnail.webp`
-}
   ];
 
   const [videos, setVideos] = useState([]);

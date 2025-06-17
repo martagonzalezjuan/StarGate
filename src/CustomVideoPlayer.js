@@ -28,13 +28,14 @@ export default function CustomVideoPlayer({
 }) {
   const videoRef = useRef(null);
   const containerRef = useRef(null);
+  const [useTheta, setUseTheta] = useState(false); // New state for switch
 
   const [chapterCues, setChapterCues] = useState([]);
   const [currentTime, setCurrentTime] = useState(0);
   const [activeChapter, setActiveChapter] = useState(null);
 
   // 1) Detecta Theta por thetaId
-  const isTheta = Boolean(videoData.thetaId);
+  const isTheta = useTheta && Boolean(videoData.thetaId);
   console.log("CustomVideoPlayer:", videoData.title, "isTheta =", isTheta);
 
   // 2) Si es Theta, arma la URL; si no, basePath para DASH
@@ -43,6 +44,19 @@ export default function CustomVideoPlayer({
       `srvacc_5fynasy80kiif1r4517bmmty2/${videoData.thetaId}/master.m3u8`
     : null;
   const basePath = `/assets/video${videoData.id}/`;
+
+  // Switch handler
+  const handleSourceSwitch = () => {
+    const videoEl = videoRef.current;
+    if (videoEl) {
+      const currentTime = videoEl.currentTime;
+      setUseTheta(!useTheta);
+      // Store current time to resume from same position
+      setTimeout(() => {
+        videoEl.currentTime = currentTime;
+      }, 100);
+    }
+  };
 
   // ─── Shaka Player (DASH) ───
   useEffect(() => {
@@ -69,9 +83,7 @@ export default function CustomVideoPlayer({
     player
       .load(`${basePath}manifest.mpd`)
       .then(() => console.log("✅ Shaka: DASH cargado"))
-      .catch((e) =>
-        console.error("💥 Shaka: error cargando manifest.mpd", e)
-      );
+      .catch((e) => console.error("💥 Shaka: error cargando manifest.mpd", e));
 
     return () => {
       console.log("🔨 Shaka: destruyendo player");
@@ -162,13 +174,20 @@ export default function CustomVideoPlayer({
         height: isTheta ? 0 : "auto",
       }}
     >
+      {/* Add source switch button */}
+      {videoData.thetaId && (
+        <button className="source-switch-btn" onClick={handleSourceSwitch}>
+          Switch to {useTheta ? "DASH" : "Theta"}
+        </button>
+      )}
+
       <video
-       ref={videoRef}
-       className="video-player"
-       /* sólo nativos para Theta, en DASH los quitamos: */
-       controls={isTheta}
-       style={{ width: "100%" }}
-     />
+        ref={videoRef}
+        className="video-player"
+        /* sólo nativos para Theta, en DASH los quitamos: */
+        controls={isTheta}
+        style={{ width: "100%" }}
+      />
 
       {emotion === "happy" && !isTheta && (
         <Canvas
