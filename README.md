@@ -1,1 +1,2 @@
 Webapp de reproducción de videos para la asignatura GDIE
+Para hacer que la aplicación funcione en local es necesario ejecutar el comando npm start en la carpeta public del proyecto. Para que funcione en el servidor es necesario hacer npm run dev para que compile el código en su versión más eficiente. Además de que los vídeos subidos al servidor por parte de los usuarios se almacenan en la carpeta del build por lo tanto no se obtendrían todas las funcionalidades si no ejecutamos el comando especificado. 
